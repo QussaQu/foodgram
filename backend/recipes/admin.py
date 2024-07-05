@@ -3,7 +3,6 @@ from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
-
 from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
 
