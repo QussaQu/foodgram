@@ -19,9 +19,9 @@ from api.serializers import (FavoriteCreateDeleteSerializer,
                              ShoppingCartCreateDeleteSerializer,
                              SubscribeCreateSerializer, SubscribeSerializer,
                              TagSerializer)
+from users.models import Subscription, User
 from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
-from users.models import Subscription, User
 
 
 class UserViewSet(UserViewSet):
