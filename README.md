@@ -46,7 +46,6 @@
    ```bash
    docker compose exec backend python manage.py createsuperuser
    ```
-------------------------------------------------------
 
 ## Инфраструктура проекта
 **Главная** - https://localhost/recipes/ \
