@@ -131,7 +131,7 @@ class CreateAmountIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'amount')
-        model = AmountIngredient
+        model = IngredientAmount
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -139,7 +139,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    ingredients = AmountIngredientSerializer(
+    ingredients = IngredientAmountSerializer(
         many=True,
         source='recipe_ingredient',
     )
@@ -216,7 +216,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
-                {'ingredients': 'Количество ингредиента не может быть меньше 1'}
+                {'ingredients': 'Кол-во ингредиента не может быть меньше 1'}
             )
         if (len(set(item['id'] for item in ingredients)) != len(ingredients)):
             raise serializers.ValidationError(
@@ -246,14 +246,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         """Добавляет ингредиенты."""
 
         create_ingredients = [
-            AmountIngredient(
+            IngredientAmount(
                 recipe=recipe,
                 ingredient=ingredient.get('id'),
                 amount=ingredient.get('amount')
             )
             for ingredient in ingredients
         ]
-        AmountIngredient.objects.bulk_create(create_ingredients)
+        IngredientAmount.objects.bulk_create(create_ingredients)
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -269,7 +269,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags_data = validated_data.get('tags')
         instance.tags.set(tags_data)
         ingredients_data = validated_data.get('ingredients')
-        AmountIngredient.objects.filter(recipe=recipe).delete()
+        IngredientAmount.objects.filter(recipe=recipe).delete()
         self.create_ingredients(ingredients_data, recipe)
         instance.save()
         return instance

@@ -3,28 +3,31 @@ import io
 from django.db.models import Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
+from djoser import views
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from users.models import Subscription, User
+from recipes.models import (IngredientAmount, Favorite,
+                            Ingredient, Recipe,
+                            ShoppingCart, Tag)
 from .filters import IngredientFilter, RecipeFilter
 from .paginations import CustomPagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (FavoriteCreateDeleteSerializer,
-                             IngredientSerializer, RecipeCreateSerializer,
-                             RecipeReadSerializer,
-                             ShoppingCartCreateDeleteSerializer,
-                             SubscribeCreateSerializer, SubscribeSerializer,
-                             TagSerializer)
-from users.models import Subscription, User
-from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
-                            ShoppingCart, Tag)
+                          IngredientSerializer, RecipeCreateSerializer,
+                          RecipeReadSerializer,
+                          ShoppingCartCreateDeleteSerializer,
+                          SubscriptionSerializer, SubscribeSerializer,
+                          TagSerializer)
 
 
-class UserViewSet(UserViewSet):
+class UserViewSet(views.UserViewSet):
+    """Вьюсет для создания обьектов класса User."""
+
     queryset = User.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
@@ -40,7 +43,7 @@ class UserViewSet(UserViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def subscribe(self, request, id=None):
-        serializer = SubscribeCreateSerializer(
+        serializer = SubscriptionSerializer(
             data={'user': request.user.id, 'author': id},
             context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -87,8 +90,9 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.select_related('author').prefetch_related(
-        'tags', 'ingredients')
+    queryset = Recipe.objects.select_related(
+        'author'
+    ).prefetch_related('tags', 'ingredients')
     permission_classes = [AuthorOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
@@ -153,7 +157,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=('get',), detail=False)
     def download_shopping_cart(self, request):
         shopping_cart = (
-            AmountIngredient.objects.select_related('recipe', 'ingredient')
+            IngredientAmount.objects.select_related('recipe', 'ingredient')
             .filter(recipe__recipes_shoppingcart_related__user=request.user)
             .values_list(
                 'ingredient__name',
