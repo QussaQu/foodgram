@@ -10,10 +10,10 @@ from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from api.filters import IngredientFilter, RecipeFilter
-from api.paginations import CustomPagination
-from api.permissions import AuthorOrReadOnly
-from api.serializers import (FavoriteCreateDeleteSerializer,
+from .filters import IngredientFilter, RecipeFilter
+from .paginations import CustomPagination
+from .permissions import AuthorOrReadOnly
+from .serializers import (FavoriteCreateDeleteSerializer,
                              IngredientSerializer, RecipeCreateSerializer,
                              RecipeReadSerializer,
                              ShoppingCartCreateDeleteSerializer,

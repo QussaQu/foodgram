@@ -66,7 +66,7 @@ class Tag(models.Model):
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -145,7 +145,7 @@ class Recipe(models.Model):
         return f'{self.name}. Автор: {self.author.username}'
 
 
-class AmountIngredient(models.Model):
+class IngredientAmount(models.Model):
     INGREDIENT_RECIPE_HELP_TEXT = (
         'Выберите рецепт, к которому относится ингредиент'
     )
@@ -185,7 +185,7 @@ class AmountIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты рецепта'
         ordering = ('recipe',)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f'{self.ingredient.name} ({self.ingredient.measurement_unit}) - '
             f'{self.amount} '
