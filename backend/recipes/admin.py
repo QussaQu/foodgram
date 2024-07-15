@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
-from recipes.constants import MAX_VALUE, MIN_VALUE
+from .constants import MAX_VALUE, MIN_VALUE
 from .models import (IngredientAmount, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
 
