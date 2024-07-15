@@ -94,7 +94,7 @@
          "is_favorited": false,
          "is_in_shopping_cart": false,
          "name": "string",
-         "image": "https://backend:9020/media/recipes/images/image.jpeg",
+         "image": "https://backend:9010/media/recipes/images/image.jpeg",
          "text": "string",
          "cooking_time": 10
        }
