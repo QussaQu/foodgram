@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
-from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
+from .models import (IngredientAmount, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
 
 admin.site.site_header = 'Администрирование Foodgram'
@@ -11,7 +11,7 @@ admin.site.unregister(Group)
 
 
 class IngredientInline(admin.TabularInline):
-    model = AmountIngredient
+    model = IngredientAmount
     extra = 1
     min_num = MIN_VALUE
     max_num = MAX_VALUE
@@ -120,7 +120,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
-@admin.register(AmountIngredient)
+@admin.register(IngredientAmount)
 class AmountIngredientAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
