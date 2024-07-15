@@ -3,8 +3,11 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, validators
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
-from recipes.models import (IngredientAmount, Favorite, Ingredient, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    IngredientAmount, Favorite,
+    Ingredient, Recipe,
+    ShoppingCart, Tag
+)
 from users.models import Subscription, User
 
 

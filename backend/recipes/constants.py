@@ -1,3 +1,5 @@
+"Файл с константами."
+
 MAX_LEN_EMAIL = 254
 MAX_LEN_NAME = 150
 MAX_LEN_TITLE = 200

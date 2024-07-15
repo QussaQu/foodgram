@@ -1,3 +1,5 @@
+"Настройки foodgram"
+
 import os
 from pathlib import Path
 

@@ -11,18 +11,22 @@ from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
 from rest_framework.response import Response
 
 from users.models import Subscription, User
-from recipes.models import (IngredientAmount, Favorite,
-                            Ingredient, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    IngredientAmount, Favorite,
+    Ingredient, Recipe,
+    ShoppingCart, Tag
+)
 from .filters import IngredientFilter, RecipeFilter
 from .paginations import CustomPagination
 from .permissions import AuthorOrReadOnly
-from .serializers import (FavoriteCreateDeleteSerializer,
-                          IngredientSerializer, RecipeCreateSerializer,
-                          RecipeReadSerializer,
-                          ShoppingCartCreateDeleteSerializer,
-                          SubscriptionSerializer, SubscribeSerializer,
-                          TagSerializer)
+from .serializers import (
+    FavoriteCreateDeleteSerializer,
+    IngredientSerializer, RecipeCreateSerializer,
+    RecipeReadSerializer,
+    ShoppingCartCreateDeleteSerializer,
+    SubscriptionSerializer, SubscribeSerializer,
+    TagSerializer
+)
 
 
 class UserViewSet(views.UserViewSet):
@@ -106,12 +110,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def create_favorite_or_shoppingcart(serializer_class, id, request):
         serializer = serializer_class(
-            data={'user': request.user.id, 'recipe': id},
+            data={
+                'user': request.user.id,
+                'recipe': id
+            },
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
 
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
@@ -157,7 +167,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=('get',), detail=False)
     def download_shopping_cart(self, request):
         shopping_cart = (
-            IngredientAmount.objects.select_related('recipe', 'ingredient')
+            IngredientAmount.objects.select_related(
+                'recipe',
+                'ingredient'
+            )
             .filter(recipe__recipes_shoppingcart_related__user=request.user)
             .values_list(
                 'ingredient__name',
