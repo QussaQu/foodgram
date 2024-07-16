@@ -80,7 +80,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
-        
+
         object = model.objects.filter(
             user=request.user, recipe_id=id
         )
