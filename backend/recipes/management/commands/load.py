@@ -1,38 +1,66 @@
-import csv
+import json
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
-from recipes.models import Ingredient
+from django.core.management.base import BaseCommand, CommandError
 
-ModelsCSV = {
-    Ingredient: 'ingredients.csv',
-}
-
-EXPECTED_HEADER = ['name', 'measurement_unit']
+from recipes.models import (
+    IngredientAmount, Favorite,
+    Ingredient, Recipe,
+    ShoppingCart, Tag
+)
+from users.models import Subscription, User
 
 
 class Command(BaseCommand):
-    help = 'Импорт данных из csv файлов'
+    help = "Загрузить данные в модели ингредиентов и тегов"
 
-    def handle(self, *args, **options):
-        for model, csv_files in ModelsCSV.items():
-            model.objects.all().delete()
-            path_to_file = f'{settings.BASE_DIR}/data/{csv_files}'
-            print(f'Начат импорт данных из файла {path_to_file}')
-            with open(
-                path_to_file,
-                mode='r',
-                encoding='utf-8',
-            ) as csv_file:
-                reader = csv.DictReader(csv_file)
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-f",
+            "--files",
+            nargs="+",
+            type=str,
+            default=["ingredients.json", "tags.json"],
+            help="Файлы с данными для загрузки",
+        )
+        parser.add_argument(
+            "-m",
+            "--models",
+            nargs="+",
+            type=str,
+            default=["Ingredient", "Tag"],
+            help="Модели для загрузки данных",
+        )
 
-                header = reader.fieldnames
-                if header != EXPECTED_HEADER:
-                    raise ValueError(
-                        'Неверный формат файла: неправильные заголовки полей.')
+    def load_data(self, file_name, model):
+        with open(
+            f"{settings.BASE_DIR}/data/{file_name}", encoding="utf-8"
+        ) as data_file:
+            data = json.load(data_file)
+            for item in data:
+                model.objects.get_or_create(**item)
 
-                model.objects.bulk_create(model(**data) for data in reader)
-            self.stdout.write(
-                f'Завершен импорт данных в модель {model.__name__}'
+    def handle(self, *args, **kwargs):
+        self.stdout.write(self.style.WARNING("Начало загрузки"))
+        files = kwargs["files"]
+        models = kwargs["models"]
+        if len(files) != len(models):
+            raise CommandError(
+                "Количество файлов и моделей должно быть одинаковым"
             )
-            return 'Импорт данных успешно завершен!'
+        model_dict = {
+            "Ingredient": Ingredient,
+            "Tag": Tag,
+            "Recipe": Recipe,
+            "ShoppingCart": ShoppingCart,
+            "AmountIngredient": IngredientAmount,
+            "Favorite": Favorite,
+            "User": User,
+            "Subscription": Subscription,
+        }
+        for file_name, model_name in zip(files, models):
+            model = model_dict.get(model_name)
+            if not model:
+                raise CommandError(f"Модель {model_name} не найдена")
+            self.load_data(file_name, model)
+        self.stdout.write(self.style.SUCCESS("Загрузка завершена"))
