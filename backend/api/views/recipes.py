@@ -79,6 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 ########################
+
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
 
