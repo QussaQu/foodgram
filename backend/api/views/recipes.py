@@ -15,7 +15,7 @@ from recipes.models import (
 )
 from api.filters import IngredientFilter, RecipeFilter
 from api.paginations import CustomPagination
-from api.permissions import AuthorOrReadOnly
+from api.permissions import AuthorOrReadOnly, IsAdminOrReadOnly
 from api.serializers import (
     FavoriteCreateDeleteSerializer,
     IngredientSerializer, RecipeCreateSerializer,
@@ -25,21 +25,22 @@ from api.serializers import (
 )
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для создания обьектов класса Tag."""
-
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    pagination_class = None
-
-
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для создания обьектов класса Ingredient."""
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
+    pagination_class = None
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для создания обьектов класса Tag."""
+
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = None
 
 
@@ -49,9 +50,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = [AuthorOrReadOnly]
+    permission_classes = (AuthorOrReadOnly | IsAdminOrReadOnly,)
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -77,7 +78,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-
+########################
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
 
@@ -99,12 +100,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk=None):
         return self.create_favorite_or_shoppingcart(
-            FavoriteCreateDeleteSerializer, pk, request)
+            FavoriteCreateDeleteSerializer, request.user, pk)
 
     @favorite.mapping.delete
     def del_favorite(self, request, pk=None):
         return self.delete_favorite_or_shoppingcart(
-            Favorite, pk, request)
+            Favorite, request.user, pk)
 
     @action(
         detail=True,
@@ -113,12 +114,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def shopping_cart(self, request, pk=None):
         return self.create_favorite_or_shoppingcart(
-            ShoppingCartCreateDeleteSerializer, pk, request)
+            ShoppingCartCreateDeleteSerializer, request.user, pk)
 
     @shopping_cart.mapping.delete
     def del_shopping_cart(self, request, pk=None):
         return self.delete_favorite_or_shoppingcart(
-            ShoppingCart, pk, request)
+            ShoppingCart, request.user, pk)
 
     @action(methods=('get',), detail=False)
     def download_shopping_cart(self, request):
