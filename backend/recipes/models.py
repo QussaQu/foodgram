@@ -126,7 +126,7 @@ class Recipe(models.Model):
         Ingredient,
         verbose_name='Ингридиенты',
         related_name='recipes',
-        through='AmountIngredient',
+        through='IngredientAmount',
         help_text=INGREDIENTS_HELP_TEXT,
     )
 
