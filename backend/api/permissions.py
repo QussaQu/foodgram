@@ -2,6 +2,8 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdminOrReadOnly(BasePermission):
+    """Предоставляет права на осуществление опасных методов запроса
+    только админу, в остальных случаях доступ запрещен."""
 
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS

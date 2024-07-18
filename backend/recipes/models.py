@@ -17,8 +17,8 @@ class Ingredient(models.Model):
     """ Модель Ингридиент """
 
     name = models.CharField(
-        verbose_name='Название',
-        max_length=200
+        verbose_name='Название ингредиента',
+        max_length=200,
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
@@ -32,7 +32,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
-                name='unique_ingredient_unit'
+                name='unique_ingredient_unit',
             )
         ]
 
@@ -46,7 +46,7 @@ class Tag(models.Model):
     name = models.CharField(
         verbose_name='Название тега',
         unique=True,
-        max_length=200
+        max_length=200,
     )
     color = ColorField(
         verbose_name='Цветовой HEX-код',
@@ -55,7 +55,7 @@ class Tag(models.Model):
         validators=[
             RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!'
+                message='Введенное значение не является цветом в формате HEX!',
             )
         ]
     )
@@ -79,14 +79,14 @@ class Recipe(models.Model):
 
     name = models.CharField(
         verbose_name='Название рецепта',
-        max_length=200
+        max_length=200,
     )
     author = models.ForeignKey(
         User,
         related_name='recipes',
         on_delete=models.SET_NULL,
         verbose_name='Автор рецепта',
-        null=True
+        null=True,
     )
     image = models.ImageField(
         verbose_name='Изображение',
@@ -108,7 +108,6 @@ class Recipe(models.Model):
             MaxValueValidator(MAX_VALUE,
                               message=f'Максимум {MAX_VALUE} минут!'),
         ],
-        help_text='Введите время приготовления рецепта в минутах'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -145,30 +144,27 @@ class IngredientAmount(models.Model):
         related_name='recipe_ingredient',
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        help_text='Выберите рецепт, к которому относится ингредиент'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        help_text='Выберите ингредиент, который используется в рецепте'
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
-        help_text='Введите количество ингредиента в единицах измерения',
         validators=(
             MinValueValidator(
                 MIN_VALUE,
                 message=f'Должно быть {MIN_VALUE} и больше'),
             MaxValueValidator(
                 MAX_VALUE,
-                message='Число должно быть меньше чем {settings.MAX_VALUE}')),
+                message=f'Число должно быть больше {MAX_VALUE}')),
     )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты рецепта'
-        ordering = ('recipe',)
+        ordering = ['recipe']
 
     def __str__(self) -> str:
         return (

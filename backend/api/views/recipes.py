@@ -16,7 +16,7 @@ from recipes.models import (
 from api.filters import IngredientFilter, RecipeFilter
 from api.paginations import CustomPagination
 from api.permissions import AuthorOrReadOnly, IsAdminOrReadOnly
-from api.serializers import (
+from serializers.recipes import (
     FavoriteCreateDeleteSerializer,
     IngredientSerializer, RecipeCreateSerializer,
     RecipeReadSerializer,

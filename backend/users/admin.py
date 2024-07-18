@@ -6,6 +6,8 @@ from .models import Subscription, User
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
+    """Админ-модель пользователей"""
+
     list_display = (
         'username',
         'id',
@@ -16,7 +18,12 @@ class UserAdmin(UserAdmin):
         'get_recipes_count',
         'get_subscribers_count',
     )
-    list_filter = ('email', 'first_name', 'is_active')
+    list_filter = (
+        'email',
+        'first_name',
+        'is_active'
+    )
+    list_fields = ('first_name',)
     search_fields = (
         'username',
         'email',
@@ -36,9 +43,21 @@ class UserAdmin(UserAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'author')
-    search_fields = ('user', 'author')
-    list_filter = ('user', 'author')
+    """Админ-модель подписок"""
+
+    list_display = (
+        'id',
+        'user',
+        'author'
+    )
+    search_fields = (
+        'user',
+        'author'
+    )
+    list_filter = (
+        'user',
+        'author'
+    )
     empty_value_display = '-пусто-'
 
     save_on_top = True

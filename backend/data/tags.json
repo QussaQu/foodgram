@@ -1,0 +1,5 @@
+[
+    {"name": "Завтрак", "color": "#DFFF33", "slug": "breakfast"},
+    {"name": "Обед", "color": "#33FFA5", "slug": "lunch"},
+    {"name": "Ужин ", "color": "#BB33FF", "slug": "dinner"}
+]
