@@ -51,7 +51,7 @@ class SubscribeSerializer(UserSerializer):
         queryset = obj.recipes.all()
         recipes_limit = self.context['request'].GET.get('recipes_limit')
         if recipes_limit and recipes_limit.isdigit():
-            queryset = queryset[: int(recipes_limit)]
+            queryset = queryset[:int(recipes_limit)]
         return RecipeShortSerializer(
             queryset, many=True, context=self.context
         ).data
@@ -73,9 +73,10 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Проверяем, что пользователь не подписывается на самого себя."""
+
         if data['subscriber'] == data['author']:
             raise serializers.ValidationError(
-                'Подписка на cамого себя не имеет смысла'
+                'Нельзя подписаться на самого себя.'
             )
         return data
 

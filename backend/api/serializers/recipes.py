@@ -43,6 +43,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
+    """Сериализатор объектов класса Recipe/Ingredient при POST запросах."""
+
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(), )
     amount = serializers.IntegerField(
@@ -60,6 +62,7 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Recipe при GET запросах."""
+
     image = Base64ImageField()
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -87,16 +90,19 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         """Проверяет, добавил ли текущий пользователь рецепт в избанное."""
+
         return self.get_is_in_user_field(obj, 'recipes_favorite_related')
 
     def get_is_in_shopping_cart(self, obj):
         """Проверяет, добавил ли текущий пользователь
         рецепт в список покупок."""
+
         return self.get_is_in_user_field(obj, 'recipes_shoppingcart_related')
 
     def get_is_in_user_field(self, obj, field):
         """Проверяет, добавилен ли текущий пользователь
         в список пользователей."""
+
         request = self.context.get('request')
         return (request.user.is_authenticated and getattr(
             request.user, field).filter(recipe=obj).exists())
@@ -200,6 +206,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, recipe):
         """Определяет какой сериализатор будет использоваться для чтения."""
+
         serializer = RecipeReadSerializer(recipe)
         return serializer.data
 
@@ -239,5 +246,7 @@ class ShoppingCartCreateDeleteSerializer(serializers.ModelSerializer):
 
 
 class FavoriteCreateDeleteSerializer(ShoppingCartCreateDeleteSerializer):
+    """Сериализатор для модели Favorite."""
+
     class Meta(ShoppingCartCreateDeleteSerializer.Meta):
         model = Favorite

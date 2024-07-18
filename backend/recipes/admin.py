@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from django.utils.safestring import mark_safe
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
 from recipes.models import (
@@ -13,7 +12,9 @@ admin.site.site_header = 'Администрирование Foodgram'
 admin.site.unregister(Group)
 
 
-class IngredientInline(admin.TabularInline):
+class RecipeIngredientInline(admin.TabularInline):
+    """Админ-модель рецептов_ингредиентов"""
+
     model = RecipeIngredient
     extra = 1
     min_num = MIN_VALUE
@@ -52,28 +53,16 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ('name', 'author__username', 'tags__name')
 
-    inlines = (IngredientInline,)
-    save_on_top = True
-    empty_value_display = '-пусто-'
-
-    @admin.display(description='Фотография')
-    def get_image(self, obj):
-        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
-
-    @admin.display(description='В избранном')
-    def count_favorites(self, obj):
-        return obj.recipes_favorite_related.count()
-
-    @admin.display(description='Ингредиенты')
-    def get_ingredients(self, obj):
-        return ', '.join(
-            ingredient.name for ingredient in obj.ingredients.all())
-
+    inlines = (RecipeIngredientInline,)
     list_display_links = ('name', 'author')
+    empty_value_display = '-пусто-'
+    save_on_top = True
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    """Админ-модель ингредиентов"""
+
     list_display = (
         'name',
         'measurement_unit',
@@ -81,7 +70,6 @@ class IngredientAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name',)
     empty_value_display = '-пусто-'
-
     save_on_top = True
 
 
@@ -92,9 +80,9 @@ class TagAdmin(admin.ModelAdmin):
         'color',
         'slug',
     )
+    search_fields = ('name',)
+    list_display_links = ('name',)
     empty_value_display = '-пусто-'
-    search_fields = ('name', 'color')
-    list_display_links = ('name', 'color')
     save_on_top = True
 
 
@@ -105,8 +93,8 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         'recipe',
     )
     search_fields = ('user__username', 'recipe__name')
-    empty_value_display = '-пусто-'
     list_display_links = ('user', 'recipe')
+    empty_value_display = '-пусто-'
     save_on_top = True
 
 
@@ -118,8 +106,8 @@ class FavoriteAdmin(admin.ModelAdmin):
         'date_added',
     )
     search_fields = ('user__username', 'recipe__name')
-    empty_value_display = '-пусто-'
     list_display_links = ('user', 'recipe')
+    empty_value_display = '-пусто-'
     save_on_top = True
 
 
@@ -130,6 +118,6 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
         'ingredient',
         'amount',
     )
-    empty_value_display = '-пусто-'
     list_display_links = ('recipe', 'ingredient')
+    empty_value_display = '-пусто-'
     save_on_top = True
