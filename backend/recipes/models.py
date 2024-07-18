@@ -80,6 +80,7 @@ class Recipe(models.Model):
     name = models.CharField(
         verbose_name='Название рецепта',
         max_length=200,
+        help_text='Введите название рецепта',
     )
     author = models.ForeignKey(
         User,
@@ -91,9 +92,14 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Изображение',
         upload_to='recipes/images/',
+        null=True,
+        blank=True,
+        help_text='Загрузите картинку',
     )
     text = models.TextField(
         verbose_name='Описание',
+        max_length=250,
+        help_text='Составьте описание',
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -101,30 +107,37 @@ class Recipe(models.Model):
         editable=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
-        'Время приготовления',
+        'Время приготовления (в минутах)',
         validators=[
-            MinValueValidator(MIN_VALUE,
-                              message=f'Минимум {MIN_VALUE} минута!'),
-            MaxValueValidator(MAX_VALUE,
-                              message=f'Максимум {MAX_VALUE} минут!'),
+            MinValueValidator(
+                MIN_VALUE,
+                message=f'Минимум {MIN_VALUE} минута!'
+            ),
+            MaxValueValidator(
+                MAX_VALUE,
+                message=f'Максимум {MAX_VALUE} минут!'
+            ),
         ],
     )
     tags = models.ManyToManyField(
         Tag,
-        verbose_name='Тэги',
+        verbose_name='Список тегов',
         related_name='recipes',
         blank=True,
+        help_text='Выставите теги',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name='Ингридиенты',
         related_name='recipes',
-        through='IngredientAmount',
+        through='RecipeIngredient',
+        help_text='Выберете ингредиенты'
     )
 
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        default_related_name = 'recipes'
         ordering = ['-pub_date']
         constraints = (
             models.CheckConstraint(
@@ -137,18 +150,20 @@ class Recipe(models.Model):
         return f'{self.name}. Автор: {self.author.username}'
 
 
-class IngredientAmount(models.Model):
+class RecipeIngredient(models.Model):
+    """Модель рецептов/ингредиентов"""
 
     recipe = models.ForeignKey(
         Recipe,
         related_name='recipe_ingredient',
-        on_delete=models.CASCADE,
         verbose_name='Рецепт',
+        on_delete=models.CASCADE,
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE,
         verbose_name='Ингредиент',
+        related_name='recipe_ingredients',
+        on_delete=models.CASCADE,
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
@@ -177,14 +192,16 @@ class UserRecipeRelation(models.Model):
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
-        on_delete=models.CASCADE,
         related_name='%(app_label)s_%(class)s_related',
+        help_text='Пользователь',
+        on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
-        on_delete=models.CASCADE,
         related_name='%(app_label)s_%(class)s_related',
+        help_text='Рецепт',
+        on_delete=models.CASCADE,
     )
 
     class Meta:
@@ -199,7 +216,7 @@ class UserRecipeRelation(models.Model):
 
 
 class Favorite(UserRecipeRelation):
-    """ Модель Избранное """
+    """Модель избранных рецептов"""
 
     date_added = models.DateTimeField(
         verbose_name='Дата добавления',
@@ -219,8 +236,8 @@ class ShoppingCart(UserRecipeRelation):
     """ Модель Корзина покупок """
 
     class Meta(UserRecipeRelation.Meta):
-        verbose_name = 'Рецепт в корзине'
-        verbose_name_plural = 'Рецепты в корзине'
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзина покупок'
 
     def __str__(self):
         return f'{self.user} добавил "{self.recipe}" в Корзину покупок'

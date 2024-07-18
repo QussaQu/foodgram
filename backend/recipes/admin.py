@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
 from recipes.models import (
-    IngredientAmount, Favorite,
+    RecipeIngredient, Favorite,
     Ingredient, Recipe,
     ShoppingCart, Tag
 )
@@ -14,7 +14,7 @@ admin.site.unregister(Group)
 
 
 class IngredientInline(admin.TabularInline):
-    model = IngredientAmount
+    model = RecipeIngredient
     extra = 1
     min_num = MIN_VALUE
     max_num = MAX_VALUE
@@ -123,8 +123,8 @@ class FavoriteAdmin(admin.ModelAdmin):
     save_on_top = True
 
 
-@admin.register(IngredientAmount)
-class IngredientAmountAdmin(admin.ModelAdmin):
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
         'ingredient',

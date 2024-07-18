@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from recipes.models import (
-    IngredientAmount, Favorite,
+    RecipeIngredient, Favorite,
     Ingredient, Recipe,
     ShoppingCart, Tag
 )
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             'Tag': Tag,
             'Recipe': Recipe,
             'ShoppingCart': ShoppingCart,
-            'AmountIngredient': IngredientAmount,
+            'AmountIngredient': RecipeIngredient,
             'Favorite': Favorite,
             'User': User,
             'Subscription': Subscription,

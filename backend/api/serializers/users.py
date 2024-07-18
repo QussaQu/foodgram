@@ -19,6 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
         )
+        read_only_fields = ('id',)
 
     def get_is_subscribed(self, obj):
         """Проверяет, подписан ли текущий пользователь на автора аккаунта."""

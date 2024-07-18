@@ -13,25 +13,25 @@ services:
     db:
       container_name: foodgram_db
       image: postgres:13.0-alpine
-      restart: unless-stopped
-      volumes:
-        - postgres_data:/var/lib/postgresql/data/
       env_file:
         - ./.env
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/
+      restart: always
       networks:
         - foodgram-network
 
     backend:
       container_name: foodgram_backend
       image: qussaqu/foodgram_backend:latest
-      restart: unless-stopped
+      env_file:
+        - ./.env
       volumes:
         - backend_static:/app/static
         - backend_media:/app/media
       depends_on:
         - db
-      env_file:
-        - ./.env
+      restart: always
       networks:
         - foodgram-network
 
@@ -43,13 +43,13 @@ services:
         - backend
       volumes:
         - frontend_static:/app/result_build/build
+      restart: on-failure
       networks:
         - foodgram-network
 
     nginx:
       container_name: foodgram_nginx
       image: nginx:1.21.3-alpine
-      restart: unless-stopped
       ports:
         - "9010:80"
       volumes:
@@ -61,5 +61,6 @@ services:
       depends_on:
         - backend
         - frontend
+      restart: always
       networks:
         - foodgram-network

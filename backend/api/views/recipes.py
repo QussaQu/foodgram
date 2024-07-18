@@ -9,7 +9,7 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 from recipes.models import (
-    IngredientAmount, Favorite,
+    RecipeIngredient, Favorite,
     Ingredient, Recipe,
     ShoppingCart, Tag
 )
@@ -78,7 +78,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-########################
 
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
@@ -125,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=('get',), detail=False)
     def download_shopping_cart(self, request):
         shopping_cart = (
-            IngredientAmount.objects.select_related(
+            RecipeIngredient.objects.select_related(
                 'recipe',
                 'ingredient'
             )
