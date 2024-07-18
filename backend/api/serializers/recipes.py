@@ -2,8 +2,8 @@ from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, validators
 
+from api.serializers.users import UserSerializer
 from recipes.constants import MAX_VALUE, MIN_VALUE
-from serializers.users import UserSerializer
 from recipes.models import (
     RecipeIngredient, Favorite,
     Ingredient, Recipe,
