@@ -3,7 +3,7 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, validators
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
-from .users import UserSerializer
+from users import UserSerializer
 from recipes.models import (
     RecipeIngredient, Favorite,
     Ingredient, Recipe,
@@ -222,6 +222,15 @@ class RecipeShortSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
+
+    def get_recipes(self, obj):
+        queryset = obj.recipes.all()
+        recipes_limit = self.context['request'].GET.get('recipes_limit')
+        if recipes_limit and recipes_limit.isdigit():
+            queryset = queryset[:int(recipes_limit)]
+        return RecipeShortSerializer(
+            queryset, many=True, context=self.context
+        ).data
 
 
 class ShoppingCartCreateDeleteSerializer(serializers.ModelSerializer):
