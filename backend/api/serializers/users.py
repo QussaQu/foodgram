@@ -1,6 +1,6 @@
 from rest_framework import serializers, validators
 
-from serializers.recipes import RecipeShortSerializer
+from .recipes import RecipeShortSerializer
 from users.models import Subscription, User
 
 
