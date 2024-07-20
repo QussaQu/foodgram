@@ -60,7 +60,7 @@ class Tag(models.Model):
         ]
     )
     slug = models.SlugField(
-        verbose_name='Уникальный слаг',
+        verbose_name="Идентификатор тега",
         unique=True,
         max_length=200,
     )
