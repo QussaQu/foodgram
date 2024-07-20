@@ -89,6 +89,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
     list_display_links = ("name", "author")
 
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = (
