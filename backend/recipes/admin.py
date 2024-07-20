@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.utils.safestring import mark_safe
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
 from recipes.models import (
@@ -72,6 +73,21 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     save_on_top = True
 
+    @admin.display(description="Фотография")
+    def get_image(self, obj):
+        return mark_safe(f"<img src={obj.image.url} width='80' hieght='30'")
+
+    @admin.display(description="В избранном")
+    def count_favorites(self, obj):
+        """Метод выводит общее число добавлений рецепта в избранное"""
+        return obj.recipes_favorite_related.count()
+
+    @admin.display(description="Ингредиенты")
+    def get_ingredients(self, obj):
+        return ", ".join(
+            ingredient.name for ingredient in obj.ingredients.all())
+
+    list_display_links = ("name", "author")
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
