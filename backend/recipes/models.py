@@ -92,7 +92,6 @@ class Recipe(models.Model):
         verbose_name='Название рецепта',
         help_text=REC_NAME_HELPER,
         max_length=200,
-        help_text='Введите название рецепта',
     )
     author = models.ForeignKey(
         User,
@@ -108,13 +107,11 @@ class Recipe(models.Model):
         upload_to='recipes/images/',
         null=True,
         blank=True,
-        help_text='Загрузите картинку',
     )
     text = models.TextField(
         verbose_name='Описание',
         help_text=TEXT_HELPER,
         max_length=3000,
-        help_text='Составьте описание',
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -142,7 +139,6 @@ class Recipe(models.Model):
         related_name='recipes',
         help_text=TAGS_OF_REC_HELPER,
         blank=True,
-        help_text='Выставите теги',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -150,7 +146,6 @@ class Recipe(models.Model):
         related_name='recipes',
         help_text=INGREDIENT_RECIPE_HELPER,
         through='RecipeIngredient',
-        help_text='Выберете ингредиенты'
     )
 
     class Meta:
