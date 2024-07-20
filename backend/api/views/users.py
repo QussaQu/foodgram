@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from users.models import Subscription, User
 from api.paginations import CustomPagination
-from serializers.users import (
+from ..serializers.users import (
     SubscriptionSerializer,
     SubscribeSerializer,
 )
