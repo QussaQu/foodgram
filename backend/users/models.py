@@ -3,7 +3,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, RegexValidator
 from django.db import models
 
-from recipes.constants import MAX_LEN_EMAIL, MAX_LEN_NAME
+from recipes.constants import (
+    MAX_LEN_EMAIL, MAX_LEN_NAME, EMAIL_HELPER,
+    FIRST_NAME_HELPER, LAST_NAME_HELPER, USERNAME_HELPER
+)
 
 
 class User(AbstractUser):
@@ -19,20 +22,24 @@ class User(AbstractUser):
 
     email = models.EmailField(
         verbose_name='Электронная почта',
+        help_text=EMAIL_HELPER,
         unique=True,
         max_length=MAX_LEN_EMAIL,
         validators=[EmailValidator],
     )
     first_name = models.CharField(
         verbose_name='Имя',
+        help_text=FIRST_NAME_HELPER,
         max_length=MAX_LEN_NAME,
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
+        help_text=LAST_NAME_HELPER,
         max_length=MAX_LEN_NAME,
     )
     username = models.CharField(
         verbose_name='Никнейм',
+        help_text=USERNAME_HELPER,
         unique=True,
         max_length=MAX_LEN_NAME,
         validators=[

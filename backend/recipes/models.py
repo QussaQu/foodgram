@@ -6,7 +6,13 @@ from django.db import models
 from django.db.models.functions import Length
 
 from recipes.constants import (
-    MAX_VALUE, MIN_VALUE
+    MIN_VALUE, MAX_VALUE, INGR_NAME_HELPER,
+    UNIT_MEASUREMENT_HELPER, TAG_NAME_HELPER,
+    COLOR_HELPER, SLUG_HELPER, REC_NAME_HELPER,
+    AUTHOR_HELPER, IMAGE_HELPER, TEXT_HELPER,
+    PUB_DATE_HELPER, COOKING_TIME_HELPER,
+    TAGS_OF_REC_HELPER, INGREDIENT_RECIPE_HELPER,
+    INGREDIENT_AMOUNT_HELPER
 )
 from users.models import User
 
@@ -18,10 +24,12 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         verbose_name='Название ингредиента',
+        help_text=INGR_NAME_HELPER,
         max_length=200,
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
+        help_text=UNIT_MEASUREMENT_HELPER,
         max_length=200,
     )
 
@@ -45,11 +53,13 @@ class Tag(models.Model):
 
     name = models.CharField(
         verbose_name='Название тега',
+        help_text=TAG_NAME_HELPER,
         unique=True,
         max_length=200,
     )
     color = ColorField(
         verbose_name='Цветовой HEX-код',
+        help_text=COLOR_HELPER,
         max_length=7,
         unique=True,
         validators=[
@@ -61,6 +71,7 @@ class Tag(models.Model):
     )
     slug = models.SlugField(
         verbose_name="Идентификатор тега",
+        help_text=SLUG_HELPER,
         unique=True,
         max_length=200,
     )
@@ -79,18 +90,21 @@ class Recipe(models.Model):
 
     name = models.CharField(
         verbose_name='Название рецепта',
+        help_text=REC_NAME_HELPER,
         max_length=200,
         help_text='Введите название рецепта',
     )
     author = models.ForeignKey(
         User,
         related_name='recipes',
+        help_text=AUTHOR_HELPER,
         on_delete=models.SET_NULL,
         verbose_name='Автор рецепта',
         null=True,
     )
     image = models.ImageField(
         verbose_name='Изображение',
+        help_text=IMAGE_HELPER,
         upload_to='recipes/images/',
         null=True,
         blank=True,
@@ -98,16 +112,19 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         verbose_name='Описание',
-        max_length=250,
+        help_text=TEXT_HELPER,
+        max_length=3000,
         help_text='Составьте описание',
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
+        help_text=PUB_DATE_HELPER,
         auto_now_add=True,
         editable=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
-        'Время приготовления (в минутах)',
+        verbose_name='Время приготовления (в минутах)',
+        help_text=COOKING_TIME_HELPER,
         validators=[
             MinValueValidator(
                 MIN_VALUE,
@@ -123,6 +140,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Список тегов',
         related_name='recipes',
+        help_text=TAGS_OF_REC_HELPER,
         blank=True,
         help_text='Выставите теги',
     )
@@ -130,6 +148,7 @@ class Recipe(models.Model):
         Ingredient,
         verbose_name='Ингридиенты',
         related_name='recipes',
+        help_text=INGREDIENT_RECIPE_HELPER,
         through='RecipeIngredient',
         help_text='Выберете ингредиенты'
     )
@@ -167,6 +186,7 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
+        help_text=INGREDIENT_AMOUNT_HELPER,
         validators=(
             MinValueValidator(
                 MIN_VALUE,
