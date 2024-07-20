@@ -59,20 +59,6 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     save_on_top = True
 
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    """Админ-модель ингредиентов"""
-
-    list_display = (
-        'name',
-        'measurement_unit',
-    )
-    search_fields = ('name',)
-    list_filter = ('name',)
-    empty_value_display = '-пусто-'
-    save_on_top = True
-
     @admin.display(description="Фотография")
     def get_image(self, obj):
         return mark_safe(f"<img src={obj.image.url} width='80' hieght='30'")
@@ -88,6 +74,20 @@ class IngredientAdmin(admin.ModelAdmin):
             ingredient.name for ingredient in obj.ingredients.all())
 
     list_display_links = ("name", "author")
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    """Админ-модель ингредиентов"""
+
+    list_display = (
+        'name',
+        'measurement_unit',
+    )
+    search_fields = ('name',)
+    list_filter = ('name',)
+    empty_value_display = '-пусто-'
+    save_on_top = True
 
 
 @admin.register(Tag)
