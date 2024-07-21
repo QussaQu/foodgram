@@ -20,7 +20,7 @@ models.CharField.register_lookup(Length)
 
 
 class Ingredient(models.Model):
-    """ Модель Ингридиент """
+    """Модель Ингридиент"""
 
     name = models.CharField(
         verbose_name='Название ингредиента',
@@ -36,7 +36,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['name']
+        ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
@@ -151,7 +151,7 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         default_related_name = 'recipes'
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         constraints = (
             models.CheckConstraint(
                 check=models.Q(name__length__gt=0),
@@ -193,7 +193,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты рецепта'
-        ordering = ['recipe']
+        ordering = ('recipe',)
 
     def __str__(self) -> str:
         return (
