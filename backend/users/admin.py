@@ -21,7 +21,7 @@ class UserAdmin(UserAdmin):
     list_filter = (
         'email',
         'first_name',
-        'is_active'
+        'is_active',
     )
     list_fields = ('first_name',)
     search_fields = (
@@ -47,16 +47,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'user',
-        'author'
+        'author',
     )
     search_fields = (
         'user',
-        'author'
+        'author',
     )
     list_filter = (
         'user',
-        'author'
+        'author',
     )
     empty_value_display = '-пусто-'
-
-    save_on_top = True

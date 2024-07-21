@@ -46,7 +46,7 @@ class UserViewSet(views.UserViewSet):
 
     @action(
         detail=False,
-        methods=('get',),
+        methods=["get",],
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
@@ -56,13 +56,15 @@ class UserViewSet(views.UserViewSet):
         queryset = user.follower.all()
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(
-            pages, many=True, context={'request': request}
+            pages,
+            many=True,
+            context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
-        methods=('post', 'delete'),
+        methods=["post", "delete",],
     )
     def subscribe(self, request, id=None):
         """Подписка на автора."""
@@ -128,7 +130,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = (AuthorOrReadOnly | IsAdminOrReadOnly)
+    permission_classes = [AuthorOrReadOnly|IsAdminOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
@@ -137,8 +139,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return RecipeIngredientSerializer
         return CreateRecipeIngredientSerializer
-    
-    def add(self, model, user, pk, name):
+
+    # def add(self, model, user, pk, name):
         """Добавление рецепта."""
 
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -152,7 +154,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeShortSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_relation(self, model, user, pk, name):
+    # def delete_relation(self, model, user, pk, name):
         """ "Удаление рецепта из списка пользователя."""
 
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -164,7 +166,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         relation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
     @staticmethod
     def create_favorite_or_shoppingcart(serializer_class, id, request):
@@ -187,7 +188,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def delete_favorite_or_shoppingcart(model, id, request):
-
         object = model.objects.filter(
             user=request.user, recipe_id=id
         )
@@ -199,11 +199,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @action(
-        detail=True,
-        methods=['post'],
-        permission_classes=[IsAuthenticated],
-    )
+    @action(detail=True, methods=["post"],
+            permission_classes=[IsAuthenticated],)
     def favorite(self, request, pk=None):
         return self.create_favorite_or_shoppingcart(
             FavoriteCreateDeleteSerializer, request.user, pk)
@@ -240,7 +237,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         favorite = ShoppingCart.objects.get(
             user=request.user,
-            recipe=serializer.validated_data['recipe'])
+            recipe=serializer.validated_data["recipe"])
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

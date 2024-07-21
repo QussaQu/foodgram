@@ -62,12 +62,6 @@ class Tag(models.Model):
         help_text=COLOR_HELPER,
         max_length=7,
         unique=True,
-        validators=[
-            RegexValidator(
-                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!',
-            )
-        ]
     )
     slug = models.SlugField(
         verbose_name="Идентификатор тега",
@@ -77,7 +71,7 @@ class Tag(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
@@ -137,6 +131,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Список тегов',
         related_name='recipes',
+        blank=True,
         help_text=TAGS_OF_REC_HELPER,
     )
     ingredients = models.ManyToManyField(
@@ -153,15 +148,9 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
         default_related_name = 'recipes'
         ordering = ('-pub_date',)
-        constraints = (
-            models.CheckConstraint(
-                check=models.Q(name__length__gt=0),
-                name='\n%(app_label)s_%(class)s_name is empty\n',
-            ),
-        )
 
     def __str__(self):
-        return f'{self.name}. Автор: {self.author.username}'
+        return self.name
 
 
 class RecipeIngredient(models.Model):
