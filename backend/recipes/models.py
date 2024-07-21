@@ -7,7 +7,7 @@ from django.db.models.functions import Length
 
 from recipes.constants import (
     MIN_VALUE, MAX_VALUE, INGR_NAME_HELPER,
-    UNIT_MEASUREMENT_HELPER, TAG_NAME_HELPER,
+    MEASUREMENT_UNIT_HELPER, TAG_NAME_HELPER,
     COLOR_HELPER, SLUG_HELPER, REC_NAME_HELPER,
     AUTHOR_HELPER, IMAGE_HELPER, TEXT_HELPER,
     PUB_DATE_HELPER, COOKING_TIME_HELPER,
@@ -29,14 +29,14 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
-        help_text=UNIT_MEASUREMENT_HELPER,
+        help_text=MEASUREMENT_UNIT_HELPER,
         max_length=200,
     )
 
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ['name']
+        ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
