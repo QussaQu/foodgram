@@ -104,6 +104,8 @@ class Recipe(models.Model):
         verbose_name='Изображение',
         help_text=IMAGE_HELPER,
         upload_to='recipes/images/',
+        blank=True,
+        null=True,
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -114,6 +116,7 @@ class Recipe(models.Model):
         verbose_name='Дата публикации',
         help_text=PUB_DATE_HELPER,
         auto_now_add=True,
+        db_index=True,
         editable=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -135,13 +138,13 @@ class Recipe(models.Model):
         verbose_name='Список тегов',
         related_name='recipes',
         help_text=TAGS_OF_REC_HELPER,
-        blank=True,
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name='Ингридиенты',
         related_name='recipes',
         help_text=INGREDIENT_RECIPE_HELPER,
+        through_fields=('recipe', 'ingredient'),
         through='RecipeIngredient',
     )
 
@@ -204,14 +207,14 @@ class UserRecipeRelation(models.Model):
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
-        related_name='%(app_label)s_%(class)s_related',
+        related_name='favorites_user',
         help_text='Пользователь',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
-        related_name='%(app_label)s_%(class)s_related',
+        related_name='favorites_recipe',
         help_text='Рецепт',
         on_delete=models.CASCADE,
     )
