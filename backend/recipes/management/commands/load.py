@@ -51,7 +51,7 @@ class Command(BaseCommand):
             'Tag': Tag,
             'Recipe': Recipe,
             'ShoppingCart': ShoppingCart,
-            'AmountIngredient': RecipeIngredient,
+            'RecipeIngredient': RecipeIngredient,
             'Favorite': Favorite,
             'User': User,
             'Subscription': Subscription,

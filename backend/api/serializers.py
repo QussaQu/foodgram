@@ -119,7 +119,8 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор объектов класса Recipe/Ingredient при POST запросах."""
 
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(), )
+        queryset=Ingredient.objects.all(),
+    )
     amount = serializers.IntegerField(
         min_value=MIN_VALUE,
         max_value=MAX_VALUE,
@@ -129,7 +130,10 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'amount')
+        fields = (
+            'id',
+            'amount'
+        )
         model = RecipeIngredient
 
 
