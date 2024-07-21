@@ -44,63 +44,62 @@ class UserViewSet(views.UserViewSet):
 
     @action(
         detail=False,
-        methods=("get",),
+        methods=('get',),
         permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
+
         user = self.request.user
         queryset = user.follower.all()
         pages = self.paginate_queryset(queryset)
         serializer = SubscriptionSerializer(
-            pages, many=True, context={"request": request}
+            pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
-        methods=("post", "delete"),
+        methods=('post', 'delete'),
     )
     def subscribe(self, request, id=None):
         """Подписка на автора."""
+
         user = self.request.user
         author = get_object_or_404(User, pk=id)
 
         if user == author:
             return Response(
-                {"errors": "Нельзя подписаться или отписаться от себя!"},
+                {'errors': 'Нельзя подписаться или отписаться от себя!'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if self.request.method == "POST":
+        if self.request.method == 'POST':
             if Subscription.objects.filter(user=user, author=author).exists():
                 return Response(
-                    {"errors": "Вы уже подписались на данного автора."},
+                    {'errors': 'Вы уже подписались на данного автора.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             queryset = Subscription.objects.create(author=author, user=user)
             serializer = SubscriptionSerializer(
-                queryset, context={"request": request}
+                queryset, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if self.request.method == "DELETE":
+        if self.request.method == 'DELETE':
             if not Subscription.objects.filter(
                 user=user, author=author
             ).exists():
                 return Response(
-                    {"errors": "Вы уже отписаны!"},
+                    {'errors': 'Вы уже отписаны!'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
             subscription = get_object_or_404(
                 Subscription, user=user, author=author
             )
             subscription.delete()
-
             return Response(status=status.HTTP_204_NO_CONTENT)
-
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
