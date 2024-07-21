@@ -188,6 +188,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = CreateRecipeIngredientSerializer(many=True)
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(
+        min_value=MIN_VALUE,
+        max_value=MAX_VALUE,
+        error_messages={
+            "min_value":
+            f"Время приготовления не может быть меньше {MIN_VALUE} минуты.",
+            "max_value":
+            f"Время приготовления не может быть больше {MAX_VALUE} минут."
+        }
+    )
 
     class Meta:
         model = Recipe
