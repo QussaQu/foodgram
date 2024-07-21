@@ -29,7 +29,6 @@ class UserAdmin(UserAdmin):
         'email',
     )
     empty_value_display = '-пусто-'
-
     save_on_top = True
 
     @admin.display(description='Количество рецептов')
