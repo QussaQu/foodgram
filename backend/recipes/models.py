@@ -86,7 +86,7 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    """ Модель Рецепт """
+    """Модель Рецепт"""
 
     name = models.CharField(
         verbose_name='Название рецепта',

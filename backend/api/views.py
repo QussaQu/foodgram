@@ -45,7 +45,7 @@ class UserViewSet(views.UserViewSet):
     @action(
         detail=False,
         methods=('get',),
-        permission_classes=(IsAuthenticated,),
+        permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
         """Список авторов, на которых подписан пользователь."""
