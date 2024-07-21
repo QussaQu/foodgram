@@ -95,18 +95,16 @@ class Recipe(models.Model):
     )
     author = models.ForeignKey(
         User,
+        verbose_name='Автор рецепта',
         related_name='recipes',
         help_text=AUTHOR_HELPER,
         on_delete=models.SET_NULL,
-        verbose_name='Автор рецепта',
         null=True,
     )
     image = models.ImageField(
         verbose_name='Изображение',
         help_text=IMAGE_HELPER,
         upload_to='recipes/images/',
-        null=True,
-        blank=True,
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -119,7 +117,7 @@ class Recipe(models.Model):
         editable=False,
     )
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name='Время приготовления (в минутах)',
+        'Время приготовления (в минутах)',
         help_text=COOKING_TIME_HELPER,
         validators=[
             MinValueValidator(

@@ -126,7 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = [AuthorOrReadOnly | IsAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
