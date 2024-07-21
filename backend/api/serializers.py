@@ -12,7 +12,8 @@ from users.models import Subscription, User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField(
+        read_only=True)
 
     class Meta:
         model = User
@@ -28,11 +29,14 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get("request")
         return (request.user.is_authenticated
-                and request.user.followed_users.filter(author=obj).exists())
+                and request.user.followed_users.filter(
+                    author=obj
+                ).exists())
 
 
 class SubscribeSerializer(UserSerializer):
-    recipes_count = serializers.ReadOnlyField(source="recipes.count")
+    recipes_count = serializers.ReadOnlyField(
+        source="recipes.count")
     recipes = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
@@ -40,7 +44,10 @@ class SubscribeSerializer(UserSerializer):
             "recipes",
             "recipes_count",
         )
-        read_only_fields = ("email", "username", "first_name", "last_name")
+        read_only_fields = (
+            "email", "username",
+            "first_name", "last_name"
+        )
 
     def get_recipes(self, obj):
         queryset = obj.recipes.all()
@@ -104,7 +111,12 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = (
+            "id",
+            "name",
+            "measurement_unit",
+            "amount"
+        )
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
@@ -115,7 +127,8 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
         max_value=MAX_VALUE,
         error_messages={
             "min_value": "Значение должно быть не меньше {min_value}.",
-            "max_value": "Количество ингредиента не больше {max_value}"}
+            "max_value": "Количество ингредиента не больше {max_value}."
+        }
     )
 
     class Meta:
@@ -150,10 +163,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        return self.get_is_in_user_field(obj, "recipes_favorite_related")
+        return self.get_is_in_user_field(
+            obj, "recipes_favorite_related"
+        )
 
     def get_is_in_shopping_cart(self, obj):
-        return self.get_is_in_user_field(obj, "recipes_shoppingcart_related")
+        return self.get_is_in_user_field(
+            obj, "recipes_shoppingcart_related"
+        )
 
     def get_is_in_user_field(self, obj, field):
         request = self.context.get("request")
@@ -212,7 +229,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create_ingredients_amounts(self, ingredients, recipe):
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
-                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                ingredient=Ingredient.objects.get(
+                    id=ingredient['id']),
                 recipe=recipe,
                 amount=ingredient['amount']
             ) for ingredient in ingredients]
@@ -224,7 +242,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients_amounts(recipe=recipe, ingredients=ingredients)
+        self.create_ingredients_amounts(
+            recipe=recipe,
+            ingredients=ingredients
+        )
         return recipe
 
     @transaction.atomic
@@ -235,14 +256,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
-        self.create_ingredients_amounts(recipe=instance, ingredients=ingredients)
+        self.create_ingredients_amounts(
+            recipe=instance,
+            ingredients=ingredients
+        )
         instance.save()
         return instance
 
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
-        return RecipeReadSerializer(instance, context=context).data
+        return RecipeReadSerializer(
+            instance, context=context
+        ).data
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
