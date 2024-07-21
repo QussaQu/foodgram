@@ -130,7 +130,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = [AuthorOrReadOnly|IsAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly | IsAdminOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
@@ -139,33 +139,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return RecipeIngredientSerializer
         return CreateRecipeIngredientSerializer
-
-    # def add(self, model, user, pk, name):
-        """Добавление рецепта."""
-
-        recipe = get_object_or_404(Recipe, pk=pk)
-        relation = model.objects.filter(user=user, recipe=recipe)
-        if relation.exists():
-            return Response(
-                {"errors": f"Нельзя повторно добавить рецепт в {name}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        model.objects.create(user=user, recipe=recipe)
-        serializer = RecipeShortSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # def delete_relation(self, model, user, pk, name):
-        """ "Удаление рецепта из списка пользователя."""
-
-        recipe = get_object_or_404(Recipe, pk=pk)
-        relation = model.objects.filter(user=user, recipe=recipe)
-        if not relation.exists():
-            return Response(
-                {"errors": f"Нельзя повторно удалить рецепт из {name}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        relation.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
     def create_favorite_or_shoppingcart(serializer_class, id, request):
