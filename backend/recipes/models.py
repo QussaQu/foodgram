@@ -98,13 +98,10 @@ class Recipe(models.Model):
         verbose_name='Изображение',
         help_text=IMAGE_HELPER,
         upload_to='recipes/images/',
-        blank=True,
-        null=True,
     )
     text = models.TextField(
         verbose_name='Описание',
         help_text=TEXT_HELPER,
-        null=True,
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
