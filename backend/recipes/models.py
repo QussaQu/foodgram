@@ -98,7 +98,7 @@ class Recipe(models.Model):
         verbose_name='Автор рецепта',
         related_name='recipes',
         help_text=AUTHOR_HELPER,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     image = models.ImageField(
         verbose_name='Изображение',
