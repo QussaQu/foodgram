@@ -9,12 +9,12 @@ from recipes.models import (
     ShoppingCart, Tag
 )
 
-admin.site.site_header = 'Администрирование Foodgram'
+admin.site.site_header = 'Админ-зона'
 admin.site.unregister(Group)
 
 
 class RecipeIngredientInline(admin.TabularInline):
-    """Админ-модель рецептов_ингредиентов"""
+    """Админ-модель рецептов/ингредиентов"""
 
     model = RecipeIngredient
     extra = 1
@@ -59,21 +59,21 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     save_on_top = True
 
-    @admin.display(description="Фотография")
+    @admin.display(description='Фотография')
     def get_image(self, obj):
-        return mark_safe(f"<img src={obj.image.url} width='80' hieght='30'")
+        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
 
-    @admin.display(description="В избранном")
+    @admin.display(description='В избранном')
     def count_favorites(self, obj):
         """Метод выводит общее число добавлений рецепта в избранное"""
         return obj.recipes_favorite_related.count()
 
-    @admin.display(description="Ингредиенты")
+    @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
-        return ", ".join(
+        return ', '.join(
             ingredient.name for ingredient in obj.ingredients.all())
 
-    list_display_links = ("name", "author")
+    list_display_links = ('name', 'author')
 
 
 @admin.register(Ingredient)
