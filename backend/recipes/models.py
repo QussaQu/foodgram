@@ -99,7 +99,6 @@ class Recipe(models.Model):
         related_name='recipes',
         help_text=AUTHOR_HELPER,
         on_delete=models.SET_NULL,
-        null=True,
     )
     image = models.ImageField(
         verbose_name='Изображение',
@@ -109,6 +108,7 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание',
         help_text=TEXT_HELPER,
+        null=True,
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
