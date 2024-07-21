@@ -98,7 +98,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-        read_only_fields = '__all__'
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -255,8 +254,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         create_ingredients = [
             RecipeIngredient(
                 recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
             )
             for ingredient in ingredients
         ]
