@@ -51,7 +51,9 @@ class SubscribeSerializer(UserSerializer):
 
     def get_recipes(self, obj):
         queryset = obj.recipes.all()
-        recipes_limit = self.context["request"].GET.get("recipes_limit")
+        recipes_limit = self.context[
+            "request"
+        ].GET.get("recipes_limit")
         if recipes_limit and recipes_limit.isdigit():
             queryset = queryset[: int(recipes_limit)]
         return RecipeShortSerializer(
@@ -179,8 +181,10 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                  many=True)
+    tags = PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
     author = UserSerializer(read_only=True)
     ingredients = CreateRecipeIngredientSerializer(many=True)
     image = Base64ImageField()
@@ -238,36 +242,29 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags)
-        self.create_ingredients_amounts(
-            recipe=recipe,
-            ingredients=ingredients
+        current_user = self.context["request"].user
+        tags = validated_data.pop("tags")
+        ingredients = validated_data.pop("ingredients")
+        recipe = Recipe.objects.create(
+            **validated_data,
+            author=current_user
         )
+        recipe.tags.set(tags)
+        self.create_ingredients_amounts(ingredients, recipe)
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
         instance.tags.clear()
-        instance.tags.set(tags)
+        instance.tags.set(validated_data.pop("tags"))
         instance.ingredients.clear()
-        self.create_ingredients_amounts(
-            recipe=instance,
-            ingredients=ingredients
-        )
-        instance.save()
-        return instance
+        ingredients = validated_data.pop("ingredients")
+        self.create_ingredients_amounts(instance, ingredients)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
         return RecipeReadSerializer(
-            instance, context=context
+            instance, context=self.context
         ).data
 
 
@@ -294,8 +291,10 @@ class ShoppingCartCreateDeleteSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user_id = data.get("user").id
         recipe_id = data.get("recipe").id
-        if self.Meta.model.objects.filter(user=user_id,
-                                          recipe=recipe_id).exists():
+        if self.Meta.model.objects.filter(
+            user=user_id,
+            recipe=recipe_id
+        ).exists():
             raise serializers.ValidationError("Рецепт уже добавлен")
         return data
 
