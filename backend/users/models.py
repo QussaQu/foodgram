@@ -48,14 +48,13 @@ class User(AbstractUser):
                 message=('Username может содержать только цифры, латинские'
                          ' буквы, знаки (не в начале): тире, точка и '
                          'нижнее тире.')
-            )
-        ]
+            )]
     )
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('username',)
+        ordering = ['username']
 
     def __str__(self) -> str:
         return f'{self.username}: {self.email}'

@@ -66,7 +66,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='В избранном')
     def count_favorites(self, obj):
         """Метод выводит общее число добавлений рецепта в избранное"""
-
         return obj.recipes_favorite_related.count()
 
     @admin.display(description='Ингредиенты')
@@ -94,10 +93,9 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = (
-        'pk',
         'name',
         'color',
-        'slug'
+        'slug',
     )
     search_fields = ('name',)
     list_display_links = ('name',)
