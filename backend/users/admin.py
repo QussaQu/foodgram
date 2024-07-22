@@ -1,11 +1,10 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
-from .models import Subscription, User
+from .models import Subscription, CustomUser
 
 
-@admin.register(User)
-class UserAdmin(UserAdmin):
+@admin.register(CustomUser)
+class UserAdmin(admin.ModelAdmin):
     """Админ-модель пользователей"""
 
     list_display = (
