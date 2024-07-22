@@ -11,7 +11,7 @@ from recipes.models import (
     RecipeIngredient, Favorite, Ingredient,
     Recipe, ShoppingCart, Tag
 )
-from users.models import Subscription, CustomUser
+from users.models import Subscription, User
 
 
 class Base64ImageField(serializers.ImageField):
@@ -34,15 +34,15 @@ class Base64ImageField(serializers.ImageField):
         return super(Base64ImageField, self).to_internal_value(data)
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-    """Serializer модели CustomUser"""
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer модели User"""
 
     is_subscribed = serializers.SerializerMethodField(
         read_only=True
     )
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             "email",
             "id",
@@ -59,13 +59,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return False
 
 
-class SubscribeSerializer(CustomUserSerializer):
+class SubscribeSerializer(UserSerializer):
     recipes_count = serializers.ReadOnlyField(
         source="recipes.count")
     recipes = serializers.SerializerMethodField()
 
-    class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + (
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + (
             "recipes",
             "recipes_count",
         )
@@ -173,7 +173,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Serializer модели Recipe"""
 
     image = Base64ImageField()
-    author = CustomUserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = RecipeIngredientSerializer(
         many=True,

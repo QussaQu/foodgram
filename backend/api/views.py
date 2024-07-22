@@ -22,7 +22,7 @@ from recipes.models import (
     RecipeIngredient,
     ShoppingCart,
 )
-from users.models import Subscription, CustomUser
+from users.models import Subscription, User
 from api.paginations import CustomPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (
@@ -36,10 +36,10 @@ from api.serializers import (
 from api.filters import IngredientFilter, RecipeFilter
 
 
-class CustomUserViewSet(views.UserViewSet):
+class UserViewSet(views.UserViewSet):
     """Вьюсет для создания обьектов класса User."""
 
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = CustomPagination
 
@@ -76,7 +76,7 @@ class CustomUserViewSet(views.UserViewSet):
     @action(detail=False, methods=["get"],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        subscriptions = CustomUser.objects.filter(
+        subscriptions = User.objects.filter(
             author__user=request.user
         )
         page = self.paginate_queryset(subscriptions)

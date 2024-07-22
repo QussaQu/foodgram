@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import Subscription, CustomUser
+from .models import Subscription, User
 
 
-@admin.register(CustomUser)
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     """Админ-модель пользователей"""
 
