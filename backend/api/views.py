@@ -26,8 +26,8 @@ from users.models import Subscription, User
 from api.paginations import CustomPagination
 from api.serializers import (
     FavoriteCreateDeleteSerializer,
-    IngredientSerializer, CreateRecipeIngredientSerializer,
-    RecipeIngredientSerializer,
+    IngredientSerializer, RecipeCreateSerializer,
+    RecipeReadSerializer,
     ShoppingCartCreateDeleteSerializer,
     SubscribeCreateSerializer, SubscribeSerializer,
     TagSerializer, RecipeShortSerializer,
@@ -139,8 +139,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
-            return RecipeIngredientSerializer
-        return CreateRecipeIngredientSerializer
+            return RecipeReadSerializer
+        return RecipeCreateSerializer
 
     @staticmethod
     def create_favorite_or_shoppingcart(serializer_class, id, request):
