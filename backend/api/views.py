@@ -10,7 +10,8 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.permissions import (
-    SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly
+    SAFE_METHODS, IsAuthenticated,
+    IsAuthenticatedOrReadOnly
 )
 from rest_framework.response import Response
 
@@ -22,8 +23,9 @@ from recipes.models import (
     RecipeIngredient,
     ShoppingCart,
 )
-from users.models import Subscription, User
+from users.models import Subscription, CustomUser
 from api.paginations import CustomPagination
+from api.permissions import AuthorOrReadOnly
 from api.serializers import (
     FavoriteCreateDeleteSerializer,
     IngredientSerializer, RecipeCreateSerializer,
@@ -35,11 +37,11 @@ from api.serializers import (
 from api.filters import IngredientFilter, RecipeFilter
 
 
-class UserViewSet(views.UserViewSet):
+class CustomUserViewSet(views.UserViewSet):
     """Вьюсет для создания обьектов класса User."""
 
-    queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = CustomPagination
 
     def get_permissions(self):
@@ -48,66 +50,41 @@ class UserViewSet(views.UserViewSet):
         return super().get_permissions()
 
     @action(
-        detail=False,
-        methods=["get",],
-        permission_classes=[IsAuthenticated]
-    )
-    def subscriptions(self, request):
-        """Список авторов, на которых подписан пользователь."""
-
-        user = self.request.user
-        queryset = user.follower.all()
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(
-            pages,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
-
-    @action(
         detail=True,
-        methods=["post", "delete",],
+        methods=["post"],
+        permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id=None):
-        """Подписка на автора."""
+        serializer = SubscribeCreateSerializer(
+            data={"user": request.user.id, "author": id},
+            context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        user = self.request.user
-        author = get_object_or_404(User, pk=id)
-
-        if user == author:
-            return Response(
-                {'errors': 'Нельзя подписаться или отписаться от себя!'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if self.request.method == 'POST':
-            if Subscription.objects.filter(user=user, author=author).exists():
-                return Response(
-                    {'errors': 'Вы уже подписались на данного автора.'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            queryset = Subscription.objects.create(author=author, user=user)
-            serializer = SubscribeCreateSerializer(
-                queryset, context={'request': request}
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if self.request.method == 'DELETE':
-            if not Subscription.objects.filter(
-                user=user, author=author
-            ).exists():
-                return Response(
-                    {'errors': 'Вы уже отписаны!'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            subscription = get_object_or_404(
-                Subscription, user=user, author=author
-            )
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id=None):
+        subscription = Subscription.objects.filter(
+            user=request.user, author=id)
+        if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(
+            {"error": "Вы не подписаны на этого пользователя"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    @action(detail=False, methods=["get"],
+            permission_classes=[IsAuthenticated])
+    def subscriptions(self, request):
+        subscriptions = CustomUser.objects.filter(
+            author__user=request.user
+        )
+        page = self.paginate_queryset(subscriptions)
+        serializer = SubscribeSerializer(
+            page, many=True, context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -132,7 +109,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter

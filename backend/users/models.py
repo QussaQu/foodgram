@@ -9,7 +9,7 @@ from recipes.constants import (
 )
 
 
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     """Модель переопределенного пользователя"""
 
     USERNAME_FIELD = 'email'
@@ -65,13 +65,13 @@ class Subscription(models.Model):
     """Модель подписок"""
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='followed_users',
         on_delete=models.CASCADE,
         verbose_name='Подписчик',
     )
     author = models.ForeignKey(
-        User,
+        CustomUser,
         related_name='author',
         on_delete=models.CASCADE,
         verbose_name='Автор',

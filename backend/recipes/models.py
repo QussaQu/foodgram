@@ -12,7 +12,7 @@ from recipes.constants import (
     TAGS_OF_REC_HELPER, INGREDIENT_RECIPE_HELPER,
     INGREDIENT_AMOUNT_HELPER
 )
-from users.models import User
+from users.models import CustomUser
 
 models.CharField.register_lookup(Length)
 
@@ -79,7 +79,7 @@ class Recipe(models.Model):
     """Модель Рецепт"""
 
     author = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name='Автор публикации',
         related_name='recipes',
         help_text=AUTHOR_HELPER,
@@ -187,7 +187,7 @@ class Favorite(models.Model):
     """Модель избранных рецептов"""
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name="favorite",
         verbose_name="Пользователь",
@@ -222,7 +222,7 @@ class ShoppingCart(models.Model):
     """Модель корзины покупок"""
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name="shopping_list",
         verbose_name="Пользователь",
