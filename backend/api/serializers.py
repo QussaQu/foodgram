@@ -11,7 +11,7 @@ from recipes.models import (
     RecipeIngredient, Favorite, Ingredient,
     Recipe, ShoppingCart, Tag
 )
-from users.models import Subscription, User
+from users.models import Subscription, CustomUser
 
 
 class Base64ImageField(serializers.ImageField):
@@ -34,15 +34,15 @@ class Base64ImageField(serializers.ImageField):
         return super(Base64ImageField, self).to_internal_value(data)
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer модели User"""
+class CustomUserSerializer(serializers.ModelSerializer):
+    """Serializer модели CustomUser"""
 
     is_subscribed = serializers.SerializerMethodField(
         read_only=True
     )
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             "email",
             "id",
@@ -53,20 +53,20 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get("request")
-        return (request.user.is_authenticated
-                and request.user.followed_users.filter(
-                    author=obj
-                ).exists())
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return Subscription.objects.filter(user=user, author=obj).exists()
+        else:
+            return False
 
 
-class SubscribeSerializer(UserSerializer):
+class SubscribeSerializer(CustomUserSerializer):
     recipes_count = serializers.ReadOnlyField(
         source="recipes.count")
     recipes = serializers.SerializerMethodField()
 
-    class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + (
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + (
             "recipes",
             "recipes_count",
         )
@@ -174,7 +174,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Serializer модели Recipe"""
 
     image = Base64ImageField()
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     ingredients = RecipeIngredientSerializer(
         many=True,
