@@ -3,7 +3,6 @@ import uuid
 
 from django.db import transaction
 from django.core.files.base import ContentFile
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.relations import PrimaryKeyRelatedField
 
