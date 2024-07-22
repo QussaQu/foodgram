@@ -1,4 +1,8 @@
+import base64
+import uuid
+
 from django.db import transaction
+from django.core.files.base import ContentFile
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.relations import PrimaryKeyRelatedField
@@ -11,9 +15,32 @@ from recipes.models import (
 from users.models import Subscription, User
 
 
+class Base64ImageField(serializers.ImageField):
+    """Serializer поля image"""
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            img_format, img_str = data.split(';base64,')
+            ext = img_format.split('/')[-1]
+            if ext.lower() not in ('jpeg', 'jpg', 'png'):
+                raise serializers.ValidationError(
+                    'Формат изображения не поддерживается. \
+                    Используйте форматы JPEG или PNG.'
+                )
+
+            uid = uuid.uuid4()
+            data = ContentFile(
+                base64.b64decode(img_str), name=uid.urn[9:] + '.' + ext
+            )
+
+        return super(Base64ImageField, self).to_internal_value(data)
+
+
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer модели User"""
+
     is_subscribed = serializers.SerializerMethodField(
-        read_only=True)
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -55,7 +82,7 @@ class SubscribeSerializer(UserSerializer):
             "request"
         ].GET.get("recipes_limit")
         if recipes_limit and recipes_limit.isdigit():
-            queryset = queryset[: int(recipes_limit)]
+            queryset = queryset[:int(recipes_limit)]
         return RecipeShortSerializer(
             queryset, many=True, context=self.context
         ).data
@@ -105,6 +132,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Serializer модели RecipeIngredient"""
+
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
     measurement_unit = serializers.ReadOnlyField(
@@ -122,8 +151,12 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
+    """Serializer создания объектов в модели RecipeIngredient"""
+
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(), )
+        queryset=Ingredient.objects.all(),
+        source='ingredient'
+    )
     amount = serializers.IntegerField(
         min_value=MIN_VALUE,
         max_value=MAX_VALUE,
@@ -139,6 +172,8 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
+    """Serializer модели Recipe"""
+
     image = Base64ImageField()
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -181,35 +216,25 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Serializer создания объектов в модели Recipe"""
+
     tags = PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
     )
-    author = UserSerializer(read_only=True)
     ingredients = CreateRecipeIngredientSerializer(many=True)
     image = Base64ImageField()
-    cooking_time = serializers.IntegerField(
-        min_value=MIN_VALUE,
-        max_value=MAX_VALUE,
-        error_messages={
-            "min_value":
-            f"Время приготовления не может быть меньше {MIN_VALUE} минуты.",
-            "max_value":
-            f"Время приготовления не может быть больше {MAX_VALUE} минут."
-        }
-    )
 
     class Meta:
         model = Recipe
         fields = (
-            'id',
-            'tags',
-            'author',
-            'ingredients',
             'name',
+            'tags',
             'image',
+            'ingredients',
             'text',
             'cooking_time',
+            'pub_date'
         )
 
     def validate(self, data):
@@ -231,13 +256,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 {"tags": "Теги не должны повторяться!"}
             )
         return data
-
-    def validate_image(self, image):
-        if not image:
-            raise serializers.ValidationError(
-                {"image": "Поле изображения не может быть пустым!"}
-            )
-        return image
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):

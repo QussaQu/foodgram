@@ -10,9 +10,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
-    SAFE_METHODS
+    SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly
 )
 from rest_framework.response import Response
 
@@ -35,14 +33,19 @@ from api.serializers import (
     TagSerializer, RecipeShortSerializer,
 )
 from api.filters import IngredientFilter, RecipeFilter
-from api.permissions import IsAdminOrReadOnly, AuthorOrReadOnly
 
 
 class UserViewSet(views.UserViewSet):
     """Вьюсет для создания обьектов класса User."""
 
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
+
+    def get_permissions(self):
+        if self.action == "me":
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     @action(
         detail=False,
@@ -130,7 +133,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.select_related(
         'author'
     ).prefetch_related('tags', 'ingredients')
-    permission_classes = [AuthorOrReadOnly | IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
