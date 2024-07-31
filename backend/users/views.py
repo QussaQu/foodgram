@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from users.models import Subscribe, User
 
 
-
 class NewUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = NewUserSerializer
