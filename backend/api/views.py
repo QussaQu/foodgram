@@ -1,11 +1,16 @@
 from datetime import datetime
 
-from django.db.models import Sum, BooleanField, Case, When, Value, F, Subquery, OuterRef, Exists
+from django.db.models import (
+    Sum, BooleanField, Case,
+    When, Value, OuterRef, Exists
+)
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag, User)
+from recipes.models import (
+    Favorite, Ingredient, IngredientInRecipe,
+    Recipe, ShoppingCart, Tag
+)
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -19,6 +24,7 @@ from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeReadSerializer,
                              RecipeShortSerializer, RecipeWriteSerializer,
                              TagSerializer)
+
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
@@ -47,7 +53,9 @@ class RecipeViewSet(ModelViewSet):
         return Recipe.objects.annotate(
             is_favorite=Case(
                 When(
-                    Exists(Favorite.objects.filter(recipe=OuterRef('pk'), user=self.request.user.pk)),
+                    Exists(Favorite.objects.filter(
+                        recipe=OuterRef('pk'), user=self.request.user.pk
+                    )),
                     then=Value(True),
                 ),
                 default=Value(False),
@@ -55,7 +63,9 @@ class RecipeViewSet(ModelViewSet):
             ),
             is_in_shopping_cart=Case(
                 When(
-                    Exists(ShoppingCart.objects.filter(recipe=OuterRef('pk'), user=self.request.user.pk)),
+                    Exists(ShoppingCart.objects.filter(
+                        recipe=OuterRef('pk'), user=self.request.user.pk
+                    )),
                     then=Value(True),
                 ),
                 default=Value(False),

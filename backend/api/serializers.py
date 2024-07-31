@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import F
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag, Favorite, ShoppingCart
+from recipes.models import (
+    Ingredient, IngredientInRecipe, Recipe,
+    Tag, Favorite, ShoppingCart
+)
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
@@ -41,9 +43,13 @@ class NewUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        subscriptions = Subscribe.objects.filter(user=user.pk).prefetch_related('author')
+        subscriptions = Subscribe.objects.filter(
+            user=user.pk
+        ).prefetch_related('author')
 
-        return any(subscription.author == obj for subscription in subscriptions)
+        return any(
+            subscription.author == obj for subscription in subscriptions
+        )
 
 
 class SubscribeSerializer(NewUserSerializer):
@@ -181,8 +187,9 @@ class RecipeWriteSerializer(ModelSerializer):
         recipe_id = data['id']
 
         if (Favorite.objects.filter(user=user, recipe__id=recipe_id).exists()
-                or ShoppingCart.objects.filter(user=user,recipe__id=recipe_id).exists()
-        ):
+                or ShoppingCart.objects.filter(
+                    user=user,
+                    recipe__id=recipe_id).exists()):
             raise ValidationError({'errors': 'Рецепт уже добавлен!'})
 
         return data

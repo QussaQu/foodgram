@@ -5,9 +5,11 @@ from .models import (Favorite, Ingredient,
                      IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 
+
 class IngredientInRecipeInline(admin.StackedInline):
     model = IngredientInRecipe
     extra = 0
+
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
@@ -40,5 +42,3 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
-
-
