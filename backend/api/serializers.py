@@ -11,7 +11,6 @@ from recipes.models import (
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
-from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, BooleanField
 from users.models import Subscribe
 
