@@ -168,7 +168,6 @@ class RecipeWriteSerializer(ModelSerializer):
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
 
-
     class Meta:
         model = Recipe
         fields = (
