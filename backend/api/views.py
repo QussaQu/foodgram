@@ -32,6 +32,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
+    pagination_class = None
 
 
 class TagViewSet(ReadOnlyModelViewSet):

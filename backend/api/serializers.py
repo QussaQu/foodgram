@@ -104,7 +104,8 @@ class TagSerializer(ModelSerializer):
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = NewUserSerializer(read_only=True)
-    ingredients = IngredientSerializer(many=True, read_only=True)
+    ingredients = IngredientSerializer(many=True,
+                                       source='ingredient_list')
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True)
     is_in_shopping_cart = BooleanField(read_only=True)
