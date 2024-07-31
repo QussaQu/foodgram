@@ -11,7 +11,7 @@ from users.models import Subscribe, User
 
 
 
-class CustomUserViewSet(UserViewSet):
+class NewUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination

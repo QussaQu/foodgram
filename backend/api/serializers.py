@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, BooleanField
 from users.models import Subscribe
 
 User = get_user_model()
@@ -41,7 +41,7 @@ class NewUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        subscriptions = Subscribe.objects.filter(user=user).prefetch_related('author')
+        subscriptions = Subscribe.objects.filter(user=user.pk).prefetch_related('author')
 
         return any(subscription.author == obj for subscription in subscriptions)
 
@@ -102,6 +102,8 @@ class RecipeReadSerializer(ModelSerializer):
     author = NewUserSerializer(read_only=True)
     ingredients = IngredientSerializer(many=True, read_only=True)
     image = Base64ImageField()
+    is_favorite = BooleanField(read_only=True)
+    is_in_shopping_cart = BooleanField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -117,6 +119,12 @@ class RecipeReadSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['is_favorite'] = instance.is_favorite
+        representation['is_in_shopping_cart'] = instance.is_in_shopping_cart
+        return representation
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
