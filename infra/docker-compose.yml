@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ../.env
+      - ./.env
     restart: always
     networks:
         - foodgram-network
@@ -29,7 +29,7 @@ services:
     depends_on:
       - db
     env_file:
-      - ../.env
+      - ./.env
     networks:
         - foodgram-network
 
