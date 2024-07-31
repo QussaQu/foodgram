@@ -183,12 +183,11 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        recipe_id = data['id']
+        recipe_id = data.get('id')
 
-        if (Favorite.objects.filter(user=user, recipe__id=recipe_id).exists()
-                or ShoppingCart.objects.filter(
-                    user=user,
-                    recipe__id=recipe_id).exists()):
+        if (Favorite.objects.filter(user=user.pk, recipe__id=recipe_id).exists()
+                or ShoppingCart.objects.filter(user=user.pk ,recipe__id=recipe_id).exists()
+        ):
             raise ValidationError({'errors': 'Рецепт уже добавлен!'})
 
         return data
