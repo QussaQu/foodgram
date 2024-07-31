@@ -62,8 +62,8 @@
    ```json
    {
      "count": 123,
-     "next": "http://127.0.0.1:9010/api/recipes/?page=2",
-     "previous": "http://127.0.0.1:9010/api/recipes/?page=1",
+     "next": "http://127.0.0.1:9090/api/recipes/?page=2",
+     "previous": "http://127.0.0.1:9090/api/recipes/?page=1",
      "results": [
        {
          "id": 0,
@@ -94,7 +94,7 @@
          "is_favorited": false,
          "is_in_shopping_cart": false,
          "name": "string",
-         "image": "https://backend:9010/media/recipes/images/image.jpeg",
+         "image": "https://backend:9090/media/recipes/images/image.jpeg",
          "text": "string",
          "cooking_time": 10
        }
@@ -138,7 +138,7 @@
        {
          "id": 0,
          "name": "string",
-         "image": "https://backend:9010/media/recipes/images/image.jpeg",
+         "image": "https://backend:9090/media/recipes/images/image.jpeg",
          "cooking_time": 10
        }
      ],

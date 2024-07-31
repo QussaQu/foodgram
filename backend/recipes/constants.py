@@ -1,10 +1,10 @@
-'Файл с константами.'
-
 MAX_LEN_EMAIL = 250  # максимальная длинна адреса email;
 MAX_LEN_NAME = 150  # максимальная длинна имени;
 MIN_VALUE = 1  # минимальное время приготовления/ количество ингредиентов;
 MAX_VALUE = 1440  # максимальное ввремя приготовления/
 # количество ингредиентов (24 часа).
+MAX_LEN_TITLE = 200
+MAX_HEX_CHARACTERS = 7
 INGR_NAME_HELPER = 'Название ингредиента'
 MEASUREMENT_UNIT_HELPER = 'Единица измерения'
 TAG_NAME_HELPER = 'Название тега'
@@ -20,7 +20,7 @@ TAGS_OF_REC_HELPER = 'Теги рецепта'
 INGREDIENT_RECIPE_HELPER = 'Ингредиенты в рецепте'
 INGREDIENT_AMOUNT_HELPER = 'Количество ингредиента'
 # Далее константы для моделей user.
-EMAIL_HELPER = "Вашу электронная почта"
-FIRST_NAME_HELPER = "Ваше имя"
-LAST_NAME_HELPER = "Ваша фамилию"
-USERNAME_HELPER = "Имя пользователя"
+EMAIL_HELPER = 'Вашу электронная почта'
+FIRST_NAME_HELPER = 'Ваше имя'
+LAST_NAME_HELPER = 'Ваша фамилию'
+USERNAME_HELPER = 'Имя пользователя'

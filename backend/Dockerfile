@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
@@ -9,4 +9,4 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY . .
 
-CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0:9010", "--reload"]
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:9090", "--reload"]

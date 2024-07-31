@@ -1,5 +1,3 @@
-"Настройки foodgram"
-
 import os
 from pathlib import Path
 
@@ -10,9 +8,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-# DEBUG = True
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split()
-# ALLOWED_HOSTS = ('localhost', '127.0.0.1')
+MIN_INGREDIENT_COUNT = os.getenv('MIN_INGREDIENT_COUNT', 0)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,15 +18,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework.authtoken',
-    'django_filters',
     'djoser',
-    'colorfield',
+    'django_filters',
 
-    'recipes.apps.RecipesConfig',
-    'api.apps.ApiConfig',
+    'api',
     'users',
+    'recipes',
 ]
 
 MIDDLEWARE = [
@@ -42,7 +39,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'foodgram.urls'
+ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
     {
@@ -60,14 +57,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'foodgram.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -76,7 +66,7 @@ DATABASES = {
         'USER': os.getenv('POSTGRES_USER', ''),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -111,8 +101,7 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'SERIALIZERS': {
-        'user': 'api.serializers.UserSerializer',
-        'current_user': 'api.serializers.UserSerializer',
+        'new_user': 'api.serializers.NewUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
@@ -124,7 +113,6 @@ DJOSER = {
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
