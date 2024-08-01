@@ -109,8 +109,8 @@ class RecipeReadSerializer(ModelSerializer):
     ingredients = IngredientSerializer(many=True,
                                        source='ingredient_list')
     image = Base64ImageField()
-    is_favorite = BooleanField(read_only=True)
-    is_in_shopping_cart = BooleanField(read_only=True)
+    is_favorite = BooleanField(read_only=True, default=False)
+    is_in_shopping_cart = BooleanField(read_only=True, default=False)
 
     class Meta:
         model = Recipe
