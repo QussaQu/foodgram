@@ -145,8 +145,7 @@ class RecipeReadSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
-    amount = serializers.IntegerField(min_value=0,
-                                      max_value=100,)
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
