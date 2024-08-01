@@ -4,13 +4,15 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (
-    Ingredient, IngredientInRecipe, Recipe,
-    Tag, Favorite, ShoppingCart)
 from rest_framework import status, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, BooleanField
+
+from recipes.models import (
+    Ingredient, IngredientInRecipe, Recipe,
+    Tag, Favorite, ShoppingCart)
+from recipes.constants import MIN_VALUE, MAX_VALUE
 from users.models import Subscribe
 
 User = get_user_model()
@@ -145,7 +147,13 @@ class RecipeReadSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(
+        min_value=MIN_VALUE,
+        max_value=MAX_VALUE,
+        error_messages={
+            "min_value": "Значение должно быть не меньше {min_value}.",
+            "max_value": "Количество ингредиента не больше {max_value}"}
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -154,10 +162,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
     @staticmethod
     def validate_ingredients(value):
         ingredients = value
-        if not ingredients:
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
+        # if not ingredients:
+        #     raise ValidationError({
+        #         'ingredients': 'Нужен хотя бы один ингредиент!'
+        #     })
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, id=item['id'])
@@ -165,10 +173,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
                 raise ValidationError({
                     'ingredients': 'Ингридиенты не могут повторяться!'
                 })
-            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
-                raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
-                })
+            # if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
+            #     raise ValidationError({
+            #         'amount': 'Количество ингредиента должно быть больше 0!'
+            #     })
             ingredients_list.append(ingredient)
         return value
 
