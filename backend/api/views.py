@@ -75,7 +75,7 @@ class RecipeViewSet(ModelViewSet):
                 default=Value(False),
                 output_field=BooleanField()
             )
-        )
+        ).select_related('author').prefetch_related('tags', 'ingredients')
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
