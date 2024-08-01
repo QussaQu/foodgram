@@ -121,8 +121,8 @@ class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = NewUserSerializer(read_only=True)
     ingredients = IngredientInRecipeSerializer(many=True,
-                                       source='ingredient_list')
-    ### ^ IngredientSerializer -> IngredientInRecipeSerializer
+                                               source='ingredient_list')
+#   ### ^ IngredientSerializer -> IngredientInRecipeSerializer
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
@@ -145,6 +145,8 @@ class RecipeReadSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
+    amount = serializers.IntegerField(min_value=1,
+                                      max_value=0,)
 
     class Meta:
         model = IngredientInRecipe
