@@ -7,7 +7,7 @@ from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (
     Ingredient, IngredientInRecipe, Recipe,
     Tag, Favorite, ShoppingCart)
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.serializers import ModelSerializer, BooleanField
@@ -51,7 +51,9 @@ class NewUserSerializer(UserSerializer):
 
 
 class SubscribeSerializer(NewUserSerializer):
-    recipes_count = SerializerMethodField()
+    recipes_count = serializers.ReadOnlyField(
+        source='recipes.count'
+    )
     recipes = SerializerMethodField()
 
     class Meta(NewUserSerializer.Meta):
@@ -162,7 +164,9 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
 
 
 class RecipeWriteSerializer(ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
     author = NewUserSerializer(read_only=True)
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
