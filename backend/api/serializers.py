@@ -196,8 +196,8 @@ class RecipeWriteSerializer(ModelSerializer):
             raise ValidationError({'errors': 'Рецепт уже добавлен!'})
         return data
 
-    def validate_tags(self, data):
-        tags = data.get('tags')
+    def validate_tags(self, value):
+        tags = value
         if not tags:
             raise ValidationError({'tags': 'Нужно выбрать хотя бы один тег!'})
         tags_list = []
@@ -207,7 +207,7 @@ class RecipeWriteSerializer(ModelSerializer):
                     {'tags': 'Теги должны быть уникальными!'}
                 )
             tags_list.append(tag)
-        return data
+        return value
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
