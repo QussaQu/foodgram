@@ -127,12 +127,6 @@ class RecipeReadSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['is_favorite'] = instance.is_favorite
-        representation['is_in_shopping_cart'] = instance.is_in_shopping_cart
-        return representation
-
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
