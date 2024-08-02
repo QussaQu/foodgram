@@ -115,7 +115,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientInRecipe
-        fields = ("id", "name", "measurement_unit", "amount")
+        fields = ("id", "name", "measurement_unit")
 #  #### новое
 
 
@@ -162,10 +162,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
     @staticmethod
     def validate_ingredients(value):
         ingredients = value
-        # if not ingredients:
-        #     raise ValidationError({
-        #         'ingredients': 'Нужен хотя бы один ингредиент!'
-        #     })
+        if not ingredients:
+            raise ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, id=item['id'])
@@ -173,10 +173,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
                 raise ValidationError({
                     'ingredients': 'Ингридиенты не могут повторяться!'
                 })
-            # if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
-            #     raise ValidationError({
-            #         'amount': 'Количество ингредиента должно быть больше 0!'
-            #     })
+            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
+                raise ValidationError({
+                    'amount': 'Количество ингредиента должно быть больше 0!'
+                })
             ingredients_list.append(ingredient)
         return value
 
