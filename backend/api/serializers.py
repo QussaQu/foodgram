@@ -12,6 +12,7 @@ from rest_framework.serializers import ModelSerializer, BooleanField
 from recipes.models import (
     Ingredient, IngredientInRecipe, Recipe,
     Tag, Favorite, ShoppingCart)
+from recipes.constants import MIN_VALUE, MAX_VALUE
 from users.models import Subscribe
 
 User = get_user_model()
@@ -104,25 +105,25 @@ class TagSerializer(ModelSerializer):
         fields = '__all__'
 
 
-# #  ###### новое
-# class IngredientInRecipeSerializer(serializers.ModelSerializer):
-#     id = serializers.ReadOnlyField(source="ingredient.id")
-#     name = serializers.ReadOnlyField(source="ingredient.name")
-#     measurement_unit = serializers.ReadOnlyField(
-#         source="ingredient.measurement_unit"
-#     )
+#  ###### новое
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source="ingredient.id")
+    name = serializers.ReadOnlyField(source="ingredient.name")
+    measurement_unit = serializers.ReadOnlyField(
+        source="ingredient.measurement_unit"
+    )
 
-#     class Meta:
-#         model = IngredientInRecipe
-#         fields = ("id", "name", "measurement_unit", "amount")
-# #  #### новое
+    class Meta:
+        model = IngredientInRecipe
+        fields = ("id", "name", "measurement_unit", "amount")
+#  #### новое
 
 
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = NewUserSerializer(read_only=True)
-    ingredients = IngredientSerializer(many=True,
-                                       source='ingredient_list')
+    ingredients = IngredientInRecipeSerializer(many=True,
+                                               source='ingredient_list')
 #   ### ^ IngredientSerializer -> IngredientInRecipeSerializer
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True, default=False)
@@ -146,6 +147,13 @@ class RecipeReadSerializer(ModelSerializer):
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     id = IntegerField(write_only=True)
+    amount = serializers.IntegerField(
+        min_value=MIN_VALUE,
+        max_value=MAX_VALUE,
+        error_messages={
+            "min_value": "Значение должно быть не меньше {min_value}.",
+            "max_value": "Количество ингредиента не больше {max_value}"}
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -154,10 +162,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
     @staticmethod
     def validate_ingredients(value):
         ingredients = value
-        if not ingredients:
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
+        # if not ingredients:
+        #     raise ValidationError({
+        #         'ingredients': 'Нужен хотя бы один ингредиент!'
+        #     })
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, id=item['id'])
@@ -165,10 +173,10 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
                 raise ValidationError({
                     'ingredients': 'Ингридиенты не могут повторяться!'
                 })
-            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
-                raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
-                })
+            # if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
+            #     raise ValidationError({
+            #         'amount': 'Количество ингредиента должно быть больше 0!'
+            #     })
             ingredients_list.append(ingredient)
         return value
 
@@ -255,7 +263,7 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        return representation
+        return RecipeReadSerializer(representation, context=self.context).data
 
 
 class RecipeShortSerializer(ModelSerializer):
