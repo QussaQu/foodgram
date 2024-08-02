@@ -1,3 +1,5 @@
+[![Main Foodgram workflow](https://github.com/QussaQu/foodgram/actions/workflows/main.yml/badge.svg)](https://github.com/QussaQu/foodgram/actions/workflows/main.yml)
+
 # FoodGram
 
 ## Описание
