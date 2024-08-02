@@ -104,25 +104,25 @@ class TagSerializer(ModelSerializer):
         fields = '__all__'
 
 
-#  ###### новое
-class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source="ingredient.id")
-    name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(
-        source="ingredient.measurement_unit"
-    )
+# #  ###### новое
+# class IngredientInRecipeSerializer(serializers.ModelSerializer):
+#     id = serializers.ReadOnlyField(source="ingredient.id")
+#     name = serializers.ReadOnlyField(source="ingredient.name")
+#     measurement_unit = serializers.ReadOnlyField(
+#         source="ingredient.measurement_unit"
+#     )
 
-    class Meta:
-        model = IngredientInRecipe
-        fields = ("id", "name", "measurement_unit", "amount")
-#  #### новое
+#     class Meta:
+#         model = IngredientInRecipe
+#         fields = ("id", "name", "measurement_unit", "amount")
+# #  #### новое
 
 
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = NewUserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True,
-                                               source='ingredient_list')
+    ingredients = IngredientSerializer(many=True,
+                                       source='ingredient_list')
 #   ### ^ IngredientSerializer -> IngredientInRecipeSerializer
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True, default=False)
