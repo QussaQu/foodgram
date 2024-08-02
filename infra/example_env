@@ -1,0 +1,9 @@
+SECRET_KEY='django-insecure-******'
+DEBUG=True
+ALLOWED_HOSTS=84.252.143.218 127.0.0.1 localhost fooodgram-new.zapto.org
+DB_ENGINE=django.db.backends.postgresql # работаем с БД postgresql
+POSTGRES_DB=food_db # имя БД
+POSTGRES_USER=food_user # имя пользователя БД
+POSTGRES_PASSWORD=food_pass # пароль от БД
+DB_HOST=db
+DB_PORT=5432
