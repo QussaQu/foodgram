@@ -73,7 +73,7 @@ class RecipeViewSet(ModelViewSet):
                 default=Value(False),
                 output_field=BooleanField()
             )
-        ).select_related('author').prefetch_related('tags', 'ingredient')
+        ).select_related('author').prefetch_related('tags', 'ingredient_list')
 #                                                                   ^ тут
 
     def get_serializer_class(self):
