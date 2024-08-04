@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -138,16 +140,23 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
 
     @staticmethod
     def validate_ingredients(value):
-        if not value:
-            raise ValidationError(
-                'Нужен хотя бы один ингредиент!'
-            )
-        ingredients = [item["id"] for item in value]
-        for ingredient in ingredients:
-            if ingredients.count(ingredient) > MIN_VALUE:
-                raise ValidationError(
-                    'Ингридиенты не могут повторяться!'
-                )
+        ingredients = value
+        if not ingredients:
+            raise ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
+        ingredients_list = []
+        for item in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=item['id'])
+            if ingredient in ingredients_list:
+                raise ValidationError({
+                    'ingredients': 'Ингридиенты не могут повторяться!'
+                })
+            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
+                raise ValidationError({
+                    'amount': 'Количество ингредиента должно быть больше 0!'
+                })
+            ingredients_list.append(ingredient)
         return value
 
 
