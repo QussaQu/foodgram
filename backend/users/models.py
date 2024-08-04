@@ -50,7 +50,7 @@ class Subscribe(models.Model):
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-    
+
     def save(self, *args, **kwargs):
         if self.user == self.author:
             raise ValidationError('На себя подписаться невозможно.')
