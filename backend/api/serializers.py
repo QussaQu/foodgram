@@ -42,55 +42,37 @@ class NewUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        subscriptions = Subscribe.objects.filter(
-            user=user.pk
-        ).prefetch_related('author')
-
-        return any(
-            subscription.author == obj for subscription in subscriptions
-        )
+        user = self.context.get('request').user.id
+        return Subscribe.objects.filter(
+            author=obj.id, user=user
+        ).exists()
 
 
 class SubscribeSerializer(NewUserSerializer):
-    recipes_count = serializers.ReadOnlyField(
-        source='recipes.count'
-    )
+    recipes_count = serializers.ReadOnlyField(source='recipes.count')
     recipes = SerializerMethodField()
 
     class Meta(NewUserSerializer.Meta):
         fields = NewUserSerializer.Meta.fields + (
-            'recipes_count', 'recipes'
+            'recipes_count',
+            'recipes'
         )
         read_only_fields = ('email', 'username')
-
-    def validate(self, data):
-        user = self.context.get('request').user
-        if Subscribe.objects.filter(author=self.instance, user=user).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        if user == self.instance:
-            raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
+        author_recipes = obj.author.recipes.all()
 
-        if limit and limit.isdigit():
-            recipes = recipes[:int(limit)]
-        serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
-
-        return serializer.data
+        if author_recipes:
+            serializer = RecipeShortSerializer(
+                author_recipes,
+                context={'request': self.context.get('request')},
+                many=True,
+            )
+            return serializer.data
+        return []
 
 
 class IngredientSerializer(ModelSerializer):
@@ -143,13 +125,13 @@ class RecipeReadSerializer(ModelSerializer):
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
-    id = IntegerField(write_only=True)
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(
         min_value=MIN_VALUE,
         max_value=MAX_VALUE,
         error_messages={
-            "min_value": "Значение должно быть не меньше {min_value}.",
-            "max_value": "Количество ингредиента не больше {max_value}"}
+            'min_value': 'Значение должно быть не меньше {min_value}.',
+            'max_value': 'Количество ингредиента не больше {max_value}'}
     )
 
     class Meta:
@@ -158,23 +140,16 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
 
     @staticmethod
     def validate_ingredients(value):
-        ingredients = value
-        if not ingredients:
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
-        ingredients_list = []
-        for item in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=item['id'])
-            if ingredient in ingredients_list:
-                raise ValidationError({
-                    'ingredients': 'Ингридиенты не могут повторяться!'
-                })
-            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
-                raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
-                })
-            ingredients_list.append(ingredient)
+        if not value:
+            raise ValidationError(
+                'Нужен хотя бы один ингредиент!'
+            )
+        ingredients = [item["id"] for item in value]
+        for ingredient in ingredients:
+            if ingredients.count(ingredient) > MIN_VALUE:
+                raise ValidationError(
+                    'Ингридиенты не могут повторяться!'
+                )
         return value
 
 
