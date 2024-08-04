@@ -3,7 +3,7 @@ MAX_LEN_NAME = 150  # максимальная длинна имени;
 MIN_VALUE = 1  # минимальное время приготовления/ количество ингредиентов;
 MAX_VALUE = 1440  # максимальное ввремя приготовления/
 # количество ингредиентов (24 часа).
-MAX_LEN_TITLE = 200
+MAX_CHAR_LENGTH = 200
 MAX_HEX_CHARACTERS = 7
 INGR_NAME_HELPER = 'Название ингредиента'
 MEASUREMENT_UNIT_HELPER = 'Единица измерения'
