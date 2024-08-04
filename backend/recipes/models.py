@@ -153,7 +153,7 @@ class UserRecipeDependence(models.Model):
         constraints = [
             UniqueConstraint(
                 fields=['user', 'recipe'],
-                name='%(app_label)s_%(class)s уже добавлен'
+                name='\n%(app_label)s_%(class)s уже добавлен\n'
             )
         ]
 
