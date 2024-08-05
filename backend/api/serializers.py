@@ -192,7 +192,9 @@ class RecipeWriteSerializer(ModelSerializer):
     def validate_tags(self, value):
         tags = value
         if not tags:
-            raise ValidationError({'tags': 'Нужно выбрать хотя бы один тег!'})
+            raise ValidationError(
+                {'tags': 'Нужно выбрать хотя бы один тег!'}
+            )
         tags_list = []
         for tag in tags:
             if tag in tags_list:
@@ -204,12 +206,11 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):
-        IngredientInRecipe.objects.bulk_create(
-            [IngredientInRecipe(
-                recipe=recipe, ingredient=ingredient['id'],
-                amount=ingredient['amount']
-            ) for ingredient in ingredients]
-        )
+        create_ingredients = [IngredientInRecipe(
+            recipe=recipe, ingredient=ingredient["id"],
+            amount=ingredient["amount"]
+        ) for ingredient in ingredients]
+        IngredientInRecipe.objects.bulk_create(create_ingredients)
 
     @transaction.atomic
     def create(self, validated_data):
