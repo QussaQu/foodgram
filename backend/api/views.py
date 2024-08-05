@@ -34,7 +34,6 @@ class NewUserViewSet(UserViewSet):
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, **kwargs):
-        user = request.user
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
 
@@ -43,10 +42,12 @@ class NewUserViewSet(UserViewSet):
                                              data=request.data,
                                              context={"request": request})
             serializer.is_valid(raise_exception=True)
-            Subscribe.objects.create(user=user, author=author)
+            Subscribe.objects.create(user=request.user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(Subscribe, user=user, author=author)
+        subscription = get_object_or_404(
+            Subscribe, user=request.user, author=author
+        )
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
