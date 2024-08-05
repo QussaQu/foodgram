@@ -107,6 +107,22 @@ class RecipeReadSerializer(ModelSerializer):
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
+    
+    def get_ingredients(self, obj):
+        ingredients = IngredientInRecipe.objects.filter(recipe=obj)
+        serializer = IngredientInRecipeSerializer(ingredients, many=True)
+        return serializer.data
+
+    def get_is_favorited(self, obj):
+        user_id = self.context.get("request").user.id
+        return Favorite.objects.filter(user=user_id, recipe=obj.id).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user_id = self.context.get("request").user.id
+        return ShoppingCart.objects.filter(
+            user=user_id, recipe=obj.id
+        ).exists()
+
 
     class Meta:
         model = Recipe
@@ -144,7 +160,9 @@ class RecipeWriteSerializer(ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     author = NewUserSerializer(read_only=True)
-    ingredients = IngredientInRecipeWriteSerializer(many=True)
+    ingredients = IngredientInRecipeWriteSerializer(
+        many=True, write_only=True
+    )
     image = Base64ImageField()
 
     class Meta:
@@ -160,31 +178,6 @@ class RecipeWriteSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def validate(self, data):
-        user = self.context['request'].user
-        recipe_id = data.get('id')
-
-        if (Favorite.objects.filter(
-            user=user.pk,
-            recipe__id=recipe_id).exists()
-                or ShoppingCart.objects.filter(
-                    user=user.pk, recipe__id=recipe_id).exists()):
-            raise ValidationError({'errors': 'Рецепт уже добавлен!'})
-        return data
-
-    def validate_tags(self, value):
-        tags = value
-        if not tags:
-            raise ValidationError({'tags': 'Нужно выбрать хотя бы один тег!'})
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise ValidationError(
-                    {'tags': 'Теги должны быть уникальными!'}
-                )
-            tags_list.append(tag)
-        return value
-
     def validate_ingredients(self, value):
         if not value:
             raise ValidationError({
@@ -197,6 +190,19 @@ class RecipeWriteSerializer(ModelSerializer):
                 raise ValidationError({
                     'ingredients': 'Ингридиенты не могут повторяться!'
                 })
+        return value
+
+    def validate_tags(self, value):
+        tags = value
+        if not tags:
+            raise ValidationError({'tags': 'Нужно выбрать хотя бы один тег!'})
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise ValidationError(
+                    {'tags': 'Теги должны быть уникальными!'}
+                )
+            tags_list.append(tag)
         return value
 
     @transaction.atomic
