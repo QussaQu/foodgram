@@ -205,7 +205,7 @@ class RecipeWriteSerializer(ModelSerializer):
         return value
 
     @staticmethod
-    def create_ingredients_amounts(ingredients, recipe):
+    def create_ingredients_amounts(recipe, ingredients):
         create_ingredients_amounts = [IngredientInRecipe(
             recipe=recipe, ingredient=ingredient['id'],
             amount=ingredient['amount']
