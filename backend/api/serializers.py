@@ -88,10 +88,10 @@ class TagSerializer(ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source="ingredient.id")
-    name = serializers.ReadOnlyField(source="ingredient.name")
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
-        source="ingredient.measurement_unit"
+        source='ingredient.measurement_unit'
     )
 
     class Meta:
@@ -138,27 +138,6 @@ class IngredientInRecipeWriteSerializer(ModelSerializer):
         model = IngredientInRecipe
         fields = ('id', 'amount')
 
-    @staticmethod
-    def validate_ingredients(value):
-        ingredients = value
-        if not ingredients:
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
-        ingredients_list = []
-        for item in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=item['id'])
-            if ingredient in ingredients_list:
-                raise ValidationError({
-                    'ingredients': 'Ингридиенты не могут повторяться!'
-                })
-            if int(item['amount']) <= settings.MIN_INGREDIENT_COUNT:
-                raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
-                })
-            ingredients_list.append(ingredient)
-        return value
-
 
 class RecipeWriteSerializer(ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
@@ -204,6 +183,20 @@ class RecipeWriteSerializer(ModelSerializer):
                     {'tags': 'Теги должны быть уникальными!'}
                 )
             tags_list.append(tag)
+        return value
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
+
+        ingredients = [item["id"] for item in value]
+        for ingredient in ingredients:
+            if ingredients.count(ingredient) > MIN_VALUE:
+                raise ValidationError({
+                    'ingredients': 'Ингридиенты не могут повторяться!'
+                })
         return value
 
     @transaction.atomic
