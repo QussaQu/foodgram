@@ -107,7 +107,7 @@ class RecipeReadSerializer(ModelSerializer):
     image = Base64ImageField()
     is_favorite = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
-    
+
     def get_ingredients(self, obj):
         ingredients = IngredientInRecipe.objects.filter(recipe=obj)
         serializer = IngredientInRecipeSerializer(ingredients, many=True)
