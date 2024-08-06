@@ -132,7 +132,8 @@ class RecipeViewSet(ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_from(self, model, user, pk):
+    @staticmethod
+    def delete_from(model, user, pk):
         obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
             obj.delete()
@@ -145,16 +146,16 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(FavoriteCreateSerializer, request.user, pk)
-        return self.delete_from(Favorite, request.user, pk)
+            return self.add_to(FavoriteCreateSerializer, request, pk)
+        return self.delete_from(Favorite, request, pk)
 
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(ShoppingCartCreateSerializer, request.user, pk)
-        return self.delete_from(ShoppingCart, request.user, pk)
+            return self.add_to(ShoppingCartCreateSerializer, request, pk)
+        return self.delete_from(ShoppingCart, request, pk)
 
     @action(detail=False,
             permission_classes=[IsAuthenticated])
