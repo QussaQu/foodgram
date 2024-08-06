@@ -103,23 +103,19 @@ class RecipeReadSerializer(ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True,
                                                source='ingredient_list')
     image = Base64ImageField()
-    is_favorite = BooleanField(read_only=True, default=False)
+    is_in_favorite = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
 
-    def get_ingredients(self, obj):
-        ingredients = IngredientInRecipe.objects.filter(recipe=obj)
-        serializer = IngredientInRecipeSerializer(ingredients, many=True)
-        return serializer.data
-
-    def get_is_favorited(self, obj):
-        user_id = self.context.get("request").user.id
-        return Favorite.objects.filter(user=user_id, recipe=obj.id).exists()
+    def get_is_in_favorited(self, obj):
+        return self.get_is_in_user_field(obj, "recipes_favorite_related")
 
     def get_is_in_shopping_cart(self, obj):
-        user_id = self.context.get("request").user.id
-        return ShoppingCart.objects.filter(
-            user=user_id, recipe=obj.id
-        ).exists()
+        return self.get_is_in_user_field(obj, "recipes_shoppingcart_related")
+
+    def get_is_in_user_field(self, obj, field):
+        request = self.context.get("request")
+        return (request.user.is_authenticated and getattr(
+            request.user, field).filter(recipe=obj).exists())
 
     class Meta:
         model = Recipe
@@ -128,7 +124,7 @@ class RecipeReadSerializer(ModelSerializer):
             'tags',
             'author',
             'ingredients',
-            'is_favorite',
+            'is_in_favorite',
             'is_in_shopping_cart',
             'name',
             'image',
@@ -190,18 +186,10 @@ class RecipeWriteSerializer(ModelSerializer):
         return value
 
     def validate_tags(self, value):
-        tags = value
-        if not tags:
+        if not value:
             raise ValidationError(
                 {'tags': 'Нужно выбрать хотя бы один тег!'}
             )
-        tags_list = []
-        for tag in tags:
-            if tag in tags_list:
-                raise ValidationError(
-                    {'tags': 'Теги должны быть уникальными!'}
-                )
-            tags_list.append(tag)
         return value
 
     @staticmethod

@@ -56,8 +56,7 @@ class NewUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(subscribing__user=user)
+        queryset = User.objects.filter(subscribing__user=request.user)
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(pages,
                                          many=True,
@@ -92,7 +91,7 @@ class RecipeViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Recipe.objects.annotate(
-            is_favorite=Case(
+            is_in_favorite=Case(
                 When(
                     Exists(Favorite.objects.filter(
                         recipe=OuterRef('pk'), user=self.request.user.pk

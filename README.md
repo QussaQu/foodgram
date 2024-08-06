@@ -93,7 +93,7 @@
              "amount": 100
            }
          ],
-         "is_favorited": false,
+         "is_in_favorite": false,
          "is_in_shopping_cart": false,
          "name": "string",
          "image": "https://backend:9090/media/recipes/images/image.jpeg",
