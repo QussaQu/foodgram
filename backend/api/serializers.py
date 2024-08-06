@@ -63,7 +63,7 @@ class SubscribeSerializer(NewUserSerializer):
     def get_recipes(self, obj):
         recipes = Recipe.objects.filter(author=obj.author)
         return RecipeShortSerializer(recipes, many=True,
-                                        context=self.context).data
+                                     context=self.context).data
 
 
 class IngredientSerializer(ModelSerializer):
