@@ -61,16 +61,9 @@ class SubscribeSerializer(NewUserSerializer):
         return obj.recipes.count()
 
     def get_recipes(self, obj):
-        author_recipes = obj.author.recipes.all()
-
-        if author_recipes:
-            serializer = RecipeShortSerializer(
-                author_recipes,
-                context={'request': self.context.get('request')},
-                many=True,
-            )
-            return serializer.data
-        return []
+        recipes = Recipe.objects.filter(author=obj.author)
+        return RecipeShortSerializer(recipes, many=True,
+                                        context=self.context).data
 
 
 class IngredientSerializer(ModelSerializer):
@@ -94,7 +87,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientInRecipe
-        fields = ("id", "name", "measurement_unit")
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeReadSerializer(ModelSerializer):
