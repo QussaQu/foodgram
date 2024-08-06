@@ -130,8 +130,8 @@ class RecipeViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def delete_from(model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
+    def delete_from(model, request, id):
+        obj = model.objects.filter(user=request.user, recipe__id=id)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -160,7 +160,7 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         user = request.user
-        if not user.shopping_cart.exists():
+        if not user.recipes_shoppingcart_related.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
