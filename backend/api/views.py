@@ -123,7 +123,7 @@ class RecipeViewSet(ModelViewSet):
     def add_to(serializer_class, pk, request):
         serializer = serializer_class(
             data={
-                'user': request.user.pk,
+                'user': request.user.id,
                 'recipe': pk
             },
             context={'request': request},
@@ -133,8 +133,8 @@ class RecipeViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def delete_from(model, user, pk):
-        obj = model.objects.filter(user=user, recipe__id=pk)
+    def delete_from(model, user, id):
+        obj = model.objects.filter(user=user, recipe__id=id)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
