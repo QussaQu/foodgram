@@ -160,8 +160,9 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         user = request.user
-        ingredients = IngredientInRecipe.objects.select_related(
-            'recipe', 'ingredient').filter(
+        if not user.recipes_shopping_cart_related.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+        ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
