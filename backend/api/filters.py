@@ -29,16 +29,21 @@ class RecipeFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author',)
+        fields = ('tags',
+                  'author',
+                  'is_in_favorited',
+                  'is_in_shopping_cart')
 
     def filter_is_in_favorite(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(recipes_favorite_related__user=user)
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(
+                recipes_favorite_related__user=self.request.user
+            )
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(recipes_shoppingcart_related__user=user)
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(
+                recipes_shoppingcart_related__user=self.request.user
+            )
         return queryset
