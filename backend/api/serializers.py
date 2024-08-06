@@ -58,12 +58,20 @@ class SubscribeSerializer(NewUserSerializer):
         read_only_fields = ('email', 'username')
 
     def get_recipes_count(self, obj):
-        return obj.recipes.count()
+        """Количество рецептов автора."""
+        return Recipe.objects.filter(author=obj.id).count()
 
     def get_recipes(self, obj):
-        recipes = Recipe.objects.filter(author=obj.author)
-        return RecipeShortSerializer(recipes, many=True,
-                                     context=self.context).data
+        """Получение списка рецептов автора."""
+        author_recipes = obj.author.recipes.all()
+        if author_recipes:
+            serializer = RecipeShortSerializer(
+                author_recipes,
+                context={"request": self.context.get("request")},
+                many=True,
+            )
+            return serializer.data
+        return []
 
 
 class IngredientSerializer(ModelSerializer):
