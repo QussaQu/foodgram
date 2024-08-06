@@ -120,12 +120,9 @@ class RecipeViewSet(ModelViewSet):
         return RecipeWriteSerializer
 
     @staticmethod
-    def add_to(serializer_class, pk, request):
+    def add_to(serializer_class, id, request):
         serializer = serializer_class(
-            data={
-                'user': request.user.id,
-                'recipe': pk
-            },
+            data={'user': request.user.id, 'recipe': id},
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
@@ -133,13 +130,15 @@ class RecipeViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def delete_from(model, user, id):
-        obj = model.objects.filter(user=user, recipe__id=id)
+    def delete_from(model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже удален'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'errors': 'Рецепт уже удален!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=True,
             methods=['post', 'delete'],
@@ -161,10 +160,10 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         user = request.user
-        if not user.recipes_shoppingcart_related.exists():
+        if not user.shopping_cart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
         ingredients = IngredientInRecipe.objects.filter(
-            recipe__recipes_shoppingcart_related__user=request.user
+            recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
