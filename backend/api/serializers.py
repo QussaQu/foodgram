@@ -234,3 +234,26 @@ class RecipeShortSerializer(ModelSerializer):
             'image',
             'cooking_time'
         )
+
+
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+    """Добавлен ли рецепт в избранное"""
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user_id = data.get('user').id
+        recipe_id = data.get('recipe').id
+        if self.Meta.model.objects.filter(user=user_id,
+                                          recipe=recipe_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже добавили этот рецепт'
+            )
+        return data
+
+
+class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
+    """Добавлен ли рецепт в корзину"""
+    class Meta(FavoriteCreateSerializer.Meta):
+        model = ShoppingCart
