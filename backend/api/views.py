@@ -120,7 +120,7 @@ class RecipeViewSet(ModelViewSet):
         return RecipeWriteSerializer
 
     @staticmethod
-    def add_to(serializer_class, id, request):
+    def add_to(serializer_class, request, id):
         serializer = serializer_class(
             data={'user': request.user.id, 'recipe': id},
             context={'request': request},

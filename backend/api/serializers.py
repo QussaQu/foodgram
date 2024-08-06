@@ -252,6 +252,12 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
             )
         return data
 
+    def to_representation(self, instance):
+        serializer = RecipeShortSerializer(
+            instance.recipe, context=self.context
+        )
+        return serializer.data
+
 
 class ShoppingCartCreateSerializer(FavoriteCreateSerializer):
     """Добавлен ли рецепт в корзину"""
