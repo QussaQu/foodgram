@@ -35,13 +35,12 @@ class NewUserViewSet(UserViewSet):
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, **kwargs):
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
 
         if request.method == 'POST':
             serializer = SubscribeSerializer(author,
                                              data=request.data,
-                                             context={"request": request})
+                                             context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -159,8 +158,7 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=False,
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        user = request.user
-        if not user.recipes_shopping_cart_related.exists():
+        if not request.user.recipes_shopping_cart_related.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
@@ -170,7 +168,7 @@ class RecipeViewSet(ModelViewSet):
         ).annotate(amount=Sum('amount'))
         today = datetime.today()
         shopping_list = (
-            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Список покупок для: {request.user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
         )
         shopping_list += '\n'.join([

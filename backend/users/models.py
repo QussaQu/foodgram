@@ -3,6 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from recipes.constants import MAX_CHAR_LENGTH
+
 
 class User(AbstractUser):
     USERNAME_FIELD = 'email'
@@ -13,7 +15,7 @@ class User(AbstractUser):
     ]
     email = models.EmailField(
         'email address',
-        max_length=254,
+        max_length=MAX_CHAR_LENGTH,
         unique=True,
     )
 
