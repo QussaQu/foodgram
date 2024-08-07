@@ -1,6 +1,8 @@
 [![Main Foodgram workflow](https://github.com/QussaQu/foodgram/actions/workflows/main.yml/badge.svg)](https://github.com/QussaQu/foodgram/actions/workflows/main.yml)
 
 # FoodGram
+ 
+Ознакомиться с проекто можете по [ссылке](http://fooodgram-new.zapto.org)
 
 ## Описание
 «Фудграм» — это сайт, на котором можно публиковать собственные рецепты, добавлять чужие рецепты в избранное, подписываться на других авторов и создавать список покупок для заданных блюд.
@@ -14,41 +16,114 @@
 
 **Инструменты и стек:** #python #JSON #YAML #Django #React #API #Docker #Nginx #PostgreSQL #Gunicorn #JWT #Postman #Djoser #PyJWT #Pillow
 
-## Запуск приложения в контейнере на сервере
-1. На сервере создайте директорию для приложения:
-    ```bash
-    mkdir foodgram/infra
-    ```
-2. В папку _infra_ скопируйте файлы `docker-compose.yml`, `nginx.conf`.
-3. Там же создайте файл `.env` со следующими переменными:
-   ```
-   SECRET_KEY=... # секретный ключ django-проекта
-   DEBUG=False
-   ALLOWED_HOSTS=... # IP/домен хоста, БД (указывается через запятую без пробелов)
-   DB_ENGINE=django.db.backends.postgresql # работаем с БД postgresql
-   DB_NAME=db.postgres # имя БД
-   POSTGRES_USER=... # имя пользователя БД
-   POSTGRES_PASSWORD=... # пароль от БД
-   DB_HOST=db
-   DB_PORT=5432
-   ```
-4. В соответствии с `ALLOWED_HOSTS` измените `nginx.conf`.
-5. Подключаем ssl сертификат для домена. Для это скачиваем certbot и получаем сертификат:
-   ```bash
-   sudo snap install --classic certbot
-   sudo ln -s /snap/bin/certbot /usr/bin/certbot
-   sudo certbot --nginx
-   sudo certbot renew --dry-run
-   ```
-6. Теперь соберем и запустим контейнер:
-   ```bash
-   sudo docker compose up --build
-   ```
-7. В новом окне терминала создадим супер пользователя:
-   ```bash
-   docker compose exec backend python manage.py createsuperuser
-   ```
+### Запуск проекта на локальной машине:
 
+- Клонировать репозиторий:
+```
+https://github.com/QussaQu/foodgram.git
+```
+
+- В директории infra создать файл .env и заполнить своими данными по аналогии с example.env:
+```
+SECRET_KEY='django-insecure-******'
+DEBUG=True / False
+ALLOWED_HOSTS=00.000.000.000 127.0.0.1 localhost *******.org
+DB_ENGINE=django.db.backends.postgresql # работаем с БД postgresql
+POSTGRES_DB=foodgram_db # имя БД
+POSTGRES_USER=foodgram_user # имя пользователя БД
+POSTGRES_PASSWORD=foodgram_password # пароль от БД
+DB_HOST=db
+DB_PORT=5432
+```
+
+- Создать и запустить контейнеры Docker, последовательно выполнить команды по созданию миграций, сбору статики, 
+созданию суперпользователя, как указано выше.
+```
+docker-compose -f docker-compose-local.yml up -d
+```
+
+
+- После запуска проект будут доступен по адресу: [http://localhost/](http://localhost/)
+
+## Запуск приложения в контейнере на сервере
+
+- Установить на сервере Docker, Docker Compose:
+
+```
+sudo apt install curl                                   # установка утилиты для скачивания файлов
+curl -fsSL https://get.docker.com -o get-docker.sh      # скачать скрипт для установки
+sh get-docker.sh                                        # запуск скрипта
+sudo apt-get install docker-compose-plugin              # последняя версия docker compose
+```
+
+- Скопировать на сервер файлы docker-compose.yml, nginx.conf из папки infra (команды выполнять находясь в папке infra):
+
+```
+scp docker-compose.yml nginx.conf username@IP:/home/username/   # username - имя пользователя на сервере
+                                                                # IP - публичный IP сервера
+```
+
+1. Скачайте foodgram-проект с [github](https://github.com/QussaQu/foodgram) - в консоли (терминале) нужно прописать git clone git@github.com:QussaQu/foodgram.git;
+2. После скачивания проекта перейтите в дерикторию foodgram, затем в infra (cd foodgram/infra);
+3. Создайте в данной дериктории файл .env (sudo touch .env). Откройте созданный файл .env (sudo nano .env);
+4. В открывшимся окне пропишите "секреты" для backend.settings:
+```
+SECRET_KEY='django-insecure-******'
+DEBUG=True / False
+ALLOWED_HOSTS=00.000.000.000 127.0.0.1 localhost *******.org
+DB_ENGINE=django.db.backends.postgresql # работаем с БД postgresql
+POSTGRES_DB=foodgram_db # имя БД
+POSTGRES_USER=foodgram_user # имя пользователя БД
+POSTGRES_PASSWORD=foodgram_password # пароль от БД
+DB_HOST=db
+DB_PORT=5432
+```
+5. Перейдите в дерикторию foodgram/backend для создания образа
+```cd .. ``` -> ```cd backend```;
+6. Создайте образ командой ```sudo docker build -t [Ваш ник на https://hub.docker.com/]/foodgram_backend .```;
+7. Поступите также с frontend -->  ```cd ..```, ```cd frontend```, ```sudo docker build -t [Ваш ник на https://hub.docker.com/]/foodgram_frontend .```;
+8. Запуште образы на сервер: ```sudo docker push [Ваш ник на https://hub.docker.com/]/foodgram_backend```, ```sudo docker push [Ваш ник на https://hub.docker.com/]/foodgram_frontend```;
+9. Перейдя в дерикторию infra ```cd ...```, ```cd infra``` 'стяните' образы: ```sudo docker compose -f docker-compose.yml pull```;
+10. Затем запустите сервер: ```sudo docker compose -f docker-compose.yml up -d```;
+11. Создайте миграции командой ```sudo docker compose -f docker-compose.yml exec backend python manage.py makemigrations```;
+12. Мигрируйте созданные поля в базу данных: ```sudo docker compose -f docker-compose.yml exec backend python manage.py migrate```;
+13. Подключите статику: ```sudo docker compose exec backend python manage.py collectstatic --noinput```;
+14. Загрузите готовые ингредиенты и теги: ```sudo docker compose exec backend python manage.py load```;
+15. Для создания суперпользователя воспользуйтесь клмандой: ```sudo docker-compose exec backend python manage.py createsuperuser```;
+16. Перейдите на выбранный Вами url для ознакомления с проектом.
+-------
+
+Секретные данные:
+username: admin
+pass: Praktikum+123
+email: admin@admin.com
+
+-------
+- Для остановки контейнеров Docker:
+```
+sudo docker compose down -v      # с их удалением
+sudo docker compose stop         # без удаления
+```
+
+- Для работы с GitHub Actions необходимо в репозитории в разделе Secrets > Actions создать переменные окружения:
+```
+SECRET_KEY              # секретный ключ Django проекта
+DOCKER_PASSWORD         # пароль от Docker Hub
+DOCKER_USERNAME         # логин Docker Hub
+HOST                    # публичный IP сервера
+USER                    # имя пользователя на сервере
+PASSPHRASE              # *если ssh-ключ защищен паролем
+SSH_KEY                 # приватный ssh-ключ
+TELEGRAM_TO             # ID телеграм-аккаунта для посылки сообщения
+TELEGRAM_TOKEN          # токен бота, посылающего сообщение
+
+DB_ENGINE               # django.db.backends.postgresql
+POSTGRES_DB             # postgres
+POSTGRES_USER           # postgres
+POSTGRES_PASSWORD       # postgres
+DB_HOST                 # db
+DB_PORT                 # 5432 (порт по умолчанию)
+```
 ------------------------------------------------------------------
 
 ## Инфраструктура проекта
