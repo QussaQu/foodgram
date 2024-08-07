@@ -68,7 +68,7 @@ class SubscribeSerializer(NewUserSerializer):
                                                read_only=True)
             return serializer.data
         except ValueError:
-            print("Невозможно преобразовать строку в число.")
+            print('Невозможно преобразовать строку в число.')
 
 
 class IngredientSerializer(ModelSerializer):
