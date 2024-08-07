@@ -42,7 +42,7 @@ class NewUserSerializer(UserSerializer):
         user = self.context.get('request').user
         if user.is_anonymous or (user == obj):
             return False
-        return user.subscribe.filter(id=obj.id).exists()
+        return user.subscriber.filter(id=obj.id).exists()
 
 
 class SubscribeSerializer(NewUserSerializer):
