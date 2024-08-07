@@ -11,7 +11,6 @@ from recipes.models import (
     Ingredient, IngredientInRecipe, Recipe,
     Tag, UserRecipeDependence, Favorite, ShoppingCart)
 from recipes.constants import MIN_VALUE, MAX_VALUE
-from users.models import Subscribe
 
 User = get_user_model()
 
@@ -58,15 +57,18 @@ class SubscribeSerializer(NewUserSerializer):
         read_only_fields = ('email', 'username')
 
     def get_recipes(self, obj):
-        queryset = obj.recipes.all()
-        limit = self.context['request'].GET.get('recipes_limit')
-        if limit and limit.isdigit():
-            queryset = queryset[:int(limit)]
-        return RecipeShortSerializer(
-            queryset,
-            many=True,
-            context=self.context
-        ).data
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.recipes.all()
+        try:
+            if limit and limit.isdigit():
+                recipes = recipes[:int(limit)]
+            serializer = RecipeShortSerializer(recipes,
+                                               many=True,
+                                               read_only=True)
+            return serializer.data
+        except ValueError:
+            print("Невозможно преобразовать строку в число.")
 
 
 class IngredientSerializer(ModelSerializer):
