@@ -93,6 +93,11 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Subscribe.objects.create(**validated_data)
+    
+    def to_representation(self, instance):
+        return SubscribeSerializer(
+            instance.author, context=self.context
+        ).data
 
 
 class IngredientSerializer(ModelSerializer):
