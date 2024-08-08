@@ -91,7 +91,7 @@ class RecipeViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Recipe.objects.annotate(
-            is_in_favorite=Case(
+            is_favorited=Case(
                 When(
                     Exists(Favorite.objects.filter(
                         recipe=OuterRef('pk'), user=self.request.user.pk

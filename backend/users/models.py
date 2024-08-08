@@ -47,7 +47,8 @@ class Subscribe(models.Model):
         constraints = [
             UniqueConstraint(
                 fields=['user', 'author'],
-                name='unique_subscription'
+                # name='unique_subscription'
+                name="\n%(app_label)s_%(class)s\n",
             )
         ]
         verbose_name = 'Подписка'

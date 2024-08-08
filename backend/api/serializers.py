@@ -100,7 +100,7 @@ class RecipeReadSerializer(ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True,
                                                source='ingredient_list')
     image = Base64ImageField()
-    is_in_favorite = BooleanField(read_only=True, default=False)
+    is_favorited = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
 
     class Meta:
@@ -110,7 +110,7 @@ class RecipeReadSerializer(ModelSerializer):
             'tags',
             'author',
             'ingredients',
-            'is_in_favorite',
+            'is_favorited',
             'is_in_shopping_cart',
             'name',
             'image',
@@ -118,7 +118,7 @@ class RecipeReadSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def get_is_in_favorited(self, obj):
+    def get_is_favorited(self, obj):
         return self.get_is_in_user_field(obj, 'recipes_favorite_related')
 
     def get_is_in_shopping_cart(self, obj):
