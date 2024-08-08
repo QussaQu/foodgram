@@ -94,6 +94,7 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Subscribe.objects.create(**validated_data)
 
+
 class IngredientSerializer(ModelSerializer):
     class Meta:
         model = Ingredient
