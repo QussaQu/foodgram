@@ -40,9 +40,8 @@ class NewUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous or (user == obj):
-            return False
-        return user.subscriber.filter(id=obj.id).exists()
+        return (user.is_authenticated
+                and user.subscriber.filter(id=obj.id).exists())
 
 
 class SubscribeSerializer(NewUserSerializer):
@@ -104,17 +103,6 @@ class RecipeReadSerializer(ModelSerializer):
     is_in_favorite = BooleanField(read_only=True, default=False)
     is_in_shopping_cart = BooleanField(read_only=True, default=False)
 
-    def get_is_in_favorited(self, obj):
-        return self.get_is_in_user_field(obj, 'recipes_favorite_related')
-
-    def get_is_in_shopping_cart(self, obj):
-        return self.get_is_in_user_field(obj, 'recipes_shoppingcart_related')
-
-    def get_is_in_user_field(self, obj, field):
-        request = self.context.get('request')
-        return (request.user.is_authenticated and getattr(
-            request.user, field).filter(recipe=obj).exists())
-
     class Meta:
         model = Recipe
         fields = (
@@ -129,6 +117,17 @@ class RecipeReadSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def get_is_in_favorited(self, obj):
+        return self.get_is_in_user_field(obj, 'recipes_favorite_related')
+
+    def get_is_in_shopping_cart(self, obj):
+        return self.get_is_in_user_field(obj, 'recipes_shoppingcart_related')
+
+    def get_is_in_user_field(self, obj, field):
+        request = self.context.get('request')
+        return (request.user.is_authenticated and getattr(
+            request.user, field).filter(recipe=obj).exists())
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
@@ -181,13 +180,6 @@ class RecipeWriteSerializer(ModelSerializer):
                 'Ингредиенты не должны повторяться'
             )
         return value
-
-        # for ingredient in ingredients:
-        #     if ingredients.count(ingredient) > MIN_VALUE:
-        #         raise ValidationError({
-        #             'ingredients': 'Ингридиенты не могут повторяться!'
-        #         })
-        # return value
 
     def validate_tags(self, value):
         tags = value
