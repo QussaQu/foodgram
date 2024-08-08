@@ -82,12 +82,12 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
         if Subscribe.objects.filter(
                 author=author_id, user=user_id).exists():
             raise serializers.ValidationError(
-                detail="Вы уже подписаны на этого пользователя!",
+                detail='Вы уже подписаны на этого пользователя!',
                 code=status.HTTP_400_BAD_REQUEST,
             )
         if user_id == author_id:
             raise serializers.ValidationError(
-                detail="Вы не можете подписаться на самого себя!",
+                detail='Вы не можете подписаться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST,
             )
         return data
