@@ -36,23 +36,27 @@ class NewUserViewSet(UserViewSet):
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
-    def subscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
-
+    def subscribe(self, request, id):
         if request.method == 'POST':
             serializer = SubscribeCreateSerializer(
-                author,
-                data=request.data,
+                data={
+                    'user': request.user.id,
+                    'author': id
+                },
                 context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(
-            Subscribe, user=request.user, author=author
+        subscription = Subscribe.objects.filter(
+            user=request.user, author=id)
+        if subscription.exists():
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'error': 'Вы не подписаны'},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,

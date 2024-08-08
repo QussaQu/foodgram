@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer, BooleanField
@@ -74,26 +74,24 @@ class SubscribeSerializer(NewUserSerializer):
 class SubscribeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
-        fields = ('user', 'author')
+        fields = ("user", "author")
 
-    def validate(self, attrs):
-        user = self.context['request'].user
-        author = attrs['author']
-        if self.context['request'].method == 'POST':
-            if user == author:
-                raise serializers.ValidationError(
-                    'Невозможно подписаться на самого себя'
-                )
-        elif self.context['request'].method == 'DELETE':
-            try:
-                Subscribe.objects.get(user=user, author=author)
-            except Subscribe.DoesNotExist:
-                print('Подписка не найдена')
-        return attrs
+    def validate(self, data):
+        user_id = data.get("user").id
+        author_id = data.get("author").id
+        if Subscribe.objects.filter(
+                author=author_id, user=user_id).exists():
+            raise serializers.ValidationError(
+                detail="Вы уже подписаны на этого пользователя!",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if user_id == author_id:
+            raise serializers.ValidationError(
+                detail="Вы не можете подписаться на самого себя!",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
-    def create(self, validated_data):
-        return Subscribe.objects.create(**validated_data)
-    
     def to_representation(self, instance):
         return SubscribeSerializer(
             instance.author, context=self.context
