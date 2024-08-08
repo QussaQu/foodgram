@@ -57,16 +57,14 @@ class SubscribeSerializer(NewUserSerializer):
         read_only_fields = ('email', 'username')
 
     def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
+        limit = self.context['request'].GET.get('recipes_limit')
         recipes = obj.recipes.all()
         try:
             if limit and limit.isdigit():
                 recipes = recipes[:int(limit)]
-            serializer = RecipeShortSerializer(recipes,
-                                               many=True,
-                                               read_only=True)
-            return serializer.data
+            return RecipeShortSerializer(recipes,
+                                         many=True,
+                                         context=self.context).data
         except ValueError:
             print('Невозможно преобразовать строку в число.')
 
@@ -74,7 +72,7 @@ class SubscribeSerializer(NewUserSerializer):
 class SubscribeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
-        fields = ("user", "author")
+        fields = ('user', 'author')
 
     def validate(self, data):
         user_id = data.get("user").id
