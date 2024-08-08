@@ -11,6 +11,7 @@ from recipes.models import (
     Ingredient, IngredientInRecipe, Recipe,
     Tag, UserRecipeDependence, Favorite, ShoppingCart)
 from recipes.constants import MIN_VALUE, MAX_VALUE
+from users.models import Subscribe
 
 User = get_user_model()
 
@@ -69,6 +70,29 @@ class SubscribeSerializer(NewUserSerializer):
         except ValueError:
             print('Невозможно преобразовать строку в число.')
 
+
+class SubscribeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = ('user', 'author')
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        author = attrs['author']
+        if self.context['request'].method == 'POST':
+            if user == author:
+                raise serializers.ValidationError(
+                    'Невозможно подписаться на самого себя'
+                )
+        elif self.context['request'].method == 'DELETE':
+            try:
+                Subscribe.objects.get(user=user, author=author)
+            except Subscribe.DoesNotExist:
+                print('Подписка не найдена')
+        return attrs
+
+    def create(self, validated_data):
+        return Subscribe.objects.create(**validated_data)
 
 class IngredientSerializer(ModelSerializer):
     class Meta:

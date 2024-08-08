@@ -17,10 +17,12 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (NewUserSerializer, SubscribeSerializer,
+                             SubscribeCreateSerializer,
                              IngredientSerializer, RecipeReadSerializer,
                              RecipeWriteSerializer, TagSerializer,
                              ShoppingCartCreateSerializer,
-                             FavoriteCreateSerializer)
+                             FavoriteCreateSerializer
+                             )
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
                             Recipe, ShoppingCart, Tag)
 from users.models import Subscribe, User
@@ -38,9 +40,10 @@ class NewUserViewSet(UserViewSet):
         author = get_object_or_404(User, id=self.kwargs.get('id'))
 
         if request.method == 'POST':
-            serializer = SubscribeSerializer(author,
-                                             data=request.data,
-                                             context={'request': request})
+            serializer = SubscribeCreateSerializer(
+                author,
+                data=request.data,
+                context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
