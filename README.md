@@ -168,7 +168,7 @@ DB_PORT                 # 5432 (порт по умолчанию)
              "amount": 100
            }
          ],
-         "is_favorite": false,
+         "is_favorited": false,
          "is_in_shopping_cart": false,
          "name": "string",
          "image": "https://backend:9090/media/recipes/images/image.jpeg",

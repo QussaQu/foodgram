@@ -158,17 +158,19 @@ class RecipeViewSet(ModelViewSet):
     @action(detail=False,
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        if not request.user.recipes_shoppingcart_related.exists():
+        user = request.user
+        if not user.recipes_shoppingcart_related.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
+
         ingredients = IngredientInRecipe.objects.filter(
-            recipe__shoppingcart__user=request.user
+            recipe__shoppingcart_related__user=user
         ).values_list(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
         today = datetime.today()
         shopping_list = (
-            f'Список покупок для: {request.user.get_full_name()}\n\n'
+            f'Список покупок для: {user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
         )
         shopping_list += '\n'.join([
@@ -178,7 +180,7 @@ class RecipeViewSet(ModelViewSet):
             for ingredient in ingredients
         ])
         shopping_list += f'\n\nFoodgram ({today:%Y})'
-        filename = f'{request.user.username}_shopping_list.txt'
+        filename = f'{user.username}_shopping_list.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
