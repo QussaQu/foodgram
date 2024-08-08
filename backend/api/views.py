@@ -59,7 +59,7 @@ class NewUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        queryset = User.objects.filter(author__user=request.user)
+        queryset = Subscribe.objects.filter(user=request.user)
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(pages,
                                          many=True,
