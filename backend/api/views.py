@@ -1,6 +1,7 @@
 from django.db.models import (Sum, BooleanField, Case,
                               When, Value, OuterRef, Exists)
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -26,49 +27,53 @@ from users.models import Subscribe, User
 
 
 class NewUserViewSet(UserViewSet):
-    queryset = User.objects.all()
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
-    @action(detail=True,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated])
-    def subscribe(self, request, id):
-        if request.method == 'POST':
-            serializer = SubscribeCreateSerializer(
-                data={
-                    'user': request.user.id,
-                    'author': id
-                },
-                context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_user(self, pk):
+        return get_object_or_404(User, id=pk)
 
-        subscription = Subscribe.objects.filter(
-            user=request.user, author=id)
-        if subscription.exists():
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {'error': 'Вы не подписаны'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    @action(detail=True,
+            methods=['post'],
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk=None):
+        target_user = self.get_user(pk)
+        serializer = SubscribeCreateSerializer(
+            data={'author': target_user.id},
+            context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        subscription = serializer.save(user=request.user)
+        return Response(SubscribeSerializer(
+            subscription,
+            context={'request': request}).data,
+            status=status.HTTP_201_CREATED)
+
+    @action(detail=True,
+            methods=['delete'],
+            permission_classes=[IsAuthenticated])
+    def unsubscribe(self, request, pk=None):
+        target_user = self.get_user(pk)
+        serializer = SubscribeCreateSerializer(
+            data={'author': target_user.id}, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        subscription = Subscribe.objects.get(
+            user=request.user, author=target_user)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False,
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        subscriptions = Subscribe.objects.filter(
-            user=request.user
-        )
-        paginator = self.paginate_queryset(subscriptions)
-        serializer = SubscribeSerializer(
-            paginator,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
+        queryset = Subscribe.objects.filter(
+            user=request.user)
+        paginator = CustomPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset,
+                                                         request)
+        serializer = self.get_serializer(paginated_queryset,
+                                         context={'request': request},
+                                         many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
