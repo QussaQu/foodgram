@@ -165,30 +165,25 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_from(ShoppingCart, request, pk)
 
     @action(detail=False,
+            methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        user = request.user
-        if not user.recipes__shoppingcart.exists():
-            return Response(status=HTTP_400_BAD_REQUEST)
-
-        ingredients = IngredientInRecipe.objects.filter(
-            recipe__shoppingcart_related__user=user
-        ).values_list(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
-        today = datetime.today()
-        shopping_list = (
-            f'Список покупок для: {user.get_full_name()}\n\n'
-            f'Дата: {today:%Y-%m-%d}\n\n'
+        shopping_cart = ShoppingCart.objects.filter(user=request.user)
+        recipes = [item.recipe.id for item in shopping_cart]
+        ingredients = (
+            IngredientInRecipe.objects.filter(recipe__in=recipes)
+            .values('ingredient')
+            .annotate(amount=Sum('amount'))
         )
-        shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["amount"]}'
-            for ingredient in ingredients
-        ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
-        response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        purchased = ["Список покупок:",]
+        for item in ingredients:
+            ingredient = Ingredient.objects.get(pk=item['ingredient'])
+            amount = item['amount']
+            purchased.append(f'{ingredient.name}: {amount}, '
+                             f'{ingredient.unit_of_measurement}')
+        purchased_in_file = "\n".join(purchased)
+        response = HttpResponse(purchased_in_file, content_type="text/plain")
+        response["Content-Disposition"] = (
+            "attachment; filename=shopping_list.txt"
+        )
         return response
