@@ -54,7 +54,7 @@ class NewUserViewSet(UserViewSet):
     def unsubscribe(self, request, id):
         user = self.get_user(id)
         serializer = SubscribeCreateSerializer(
-            data={'author': target_user.id}, context={'request': request})
+            data={'author': user.id}, context={'request': request})
         serializer.is_valid(raise_exception=True)
         subscription = Subscribe.objects.get(
             user=request.user, author=user)
@@ -181,7 +181,7 @@ class RecipeViewSet(ModelViewSet):
             .values('ingredient')
             .annotate(amount=Sum('amount'))
         )
-        purchased = ["Список покупок:",]
+        purchased = ["Список покупок:", ]
         for item in ingredients:
             ingredient = Ingredient.objects.get(pk=item['ingredient'])
             amount = item['amount']
