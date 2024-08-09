@@ -31,9 +31,6 @@ class NewUserViewSet(UserViewSet):
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
-    def get_user(self, id):
-        return get_object_or_404(User, id=id)
-
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -69,7 +66,7 @@ class NewUserViewSet(UserViewSet):
         serializer = SubscribeSerializer(paginator,
                                          many=True,
                                          context={"request": request}
-        )
+                                         )
         return self.get_paginated_response(serializer.data)
 
 
