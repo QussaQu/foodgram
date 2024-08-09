@@ -65,8 +65,7 @@ class NewUserViewSet(UserViewSet):
         paginator = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(paginator,
                                          many=True,
-                                         context={"request": request}
-                                         )
+                                         context={"request": request})
         return self.get_paginated_response(serializer.data)
 
 
