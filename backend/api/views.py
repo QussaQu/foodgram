@@ -1,7 +1,6 @@
 from django.db.models import (Sum, BooleanField, Case,
                               When, Value, OuterRef, Exists)
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -27,7 +26,6 @@ from users.models import Subscribe, User
 
 
 class NewUserViewSet(UserViewSet):
-    queryset = User.objects.all()
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
@@ -59,13 +57,10 @@ class NewUserViewSet(UserViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(
-            author__user=request.user
-        )
-        paginator = self.paginate_queryset(subscriptions)
-        serializer = SubscribeSerializer(paginator,
-                                         many=True,
-                                         context={"request": request})
+        queryset = User.objects.filter(subscribing__user=request.user)
+        page = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(page, many=True,
+                                         context={'request': request})
         return self.get_paginated_response(serializer.data)
 
 
