@@ -30,16 +30,16 @@ class NewUserViewSet(UserViewSet):
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
-    def get_user(self, pk):
-        return get_object_or_404(User, id=pk)
+    def get_user(self, id):
+        return get_object_or_404(User, id=id)
 
     @action(detail=True,
             methods=['post'],
             permission_classes=[IsAuthenticated])
-    def subscribe(self, request, pk=None):
-        target_user = self.get_user(pk)
+    def subscribe(self, request, id):
+        user = self.get_user(id)
         serializer = SubscribeCreateSerializer(
-            data={'author': target_user.id},
+            data={'author': user.id},
             context={'request': request})
         serializer.is_valid(raise_exception=True)
         subscription = serializer.save(user=request.user)
@@ -51,13 +51,13 @@ class NewUserViewSet(UserViewSet):
     @action(detail=True,
             methods=['delete'],
             permission_classes=[IsAuthenticated])
-    def unsubscribe(self, request, pk=None):
-        target_user = self.get_user(pk)
+    def unsubscribe(self, request, id):
+        user = self.get_user(id)
         serializer = SubscribeCreateSerializer(
             data={'author': target_user.id}, context={'request': request})
         serializer.is_valid(raise_exception=True)
         subscription = Subscribe.objects.get(
-            user=request.user, author=target_user)
+            user=request.user, author=user)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
