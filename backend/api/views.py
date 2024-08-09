@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db.models import (Sum, BooleanField, Case,
                               When, Value, OuterRef, Exists)
 from django.http import HttpResponse
@@ -168,6 +166,9 @@ class RecipeViewSet(ModelViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
+        if not request.user.recipes_shoppingcart_related.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+
         shopping_cart = ShoppingCart.objects.filter(user=request.user)
         recipes = [item.recipe.id for item in shopping_cart]
         ingredients = (
@@ -181,9 +182,9 @@ class RecipeViewSet(ModelViewSet):
             amount = item['amount']
             purchased.append(f'{ingredient.name}: {amount}, '
                              f'{ingredient.unit_of_measurement}')
-        purchased_in_file = "\n".join(purchased)
-        response = HttpResponse(purchased_in_file, content_type="text/plain")
-        response["Content-Disposition"] = (
-            "attachment; filename=shopping_list.txt"
+        purchased_in_file = '\n'.join(purchased)
+        response = HttpResponse(purchased_in_file, content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; filename=shopping_list.txt'
         )
         return response
