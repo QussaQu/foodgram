@@ -57,8 +57,9 @@ class SubscribeSerializer(NewUserSerializer):
         read_only_fields = ('email', 'username')
 
     def get_recipes(self, obj):
-        limit = self.context['request'].GET.get('recipes_limit')
-        queryset = obj.recipes.all()
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        queryset = Recipe.objects.filter(author=obj.author)
         try:
             if limit and limit.isdigit():
                 queryset = queryset[:int(limit)]
