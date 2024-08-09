@@ -168,7 +168,7 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         user = request.user
-        if not user.recipes_shoppingcart_related.exists():
+        if not user.recipes__shoppingcart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
 
         ingredients = IngredientInRecipe.objects.filter(
@@ -189,7 +189,6 @@ class RecipeViewSet(ModelViewSet):
             for ingredient in ingredients
         ])
         shopping_list += f'\n\nFoodgram ({today:%Y})'
-        filename = f'{user.username}_shopping_list.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
+        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
         return response
