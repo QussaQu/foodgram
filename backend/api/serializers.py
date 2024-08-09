@@ -59,7 +59,7 @@ class SubscribeSerializer(NewUserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        queryset = Recipe.objects.filter(author=obj.author)
+        queryset = obj.recipes.all()
         try:
             if limit and limit.isdigit():
                 queryset = queryset[:int(limit)]
