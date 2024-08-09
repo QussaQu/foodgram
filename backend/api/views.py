@@ -27,6 +27,7 @@ from users.models import Subscribe, User
 
 
 class NewUserViewSet(UserViewSet):
+    queryset = User.objects.all()
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
@@ -36,7 +37,7 @@ class NewUserViewSet(UserViewSet):
     @action(detail=True,
             methods=['post'],
             permission_classes=[IsAuthenticated])
-    def subscribe(self, request, id=None):
+    def subscribe(self, request, id):
         serializer = SubscribeCreateSerializer(
             data={
                 'user': request.user.id,
@@ -50,7 +51,7 @@ class NewUserViewSet(UserViewSet):
     @action(detail=True,
             methods=['delete'],
             permission_classes=[IsAuthenticated])
-    def unsubscribe(self, request, id=None):
+    def unsubscribe(self, request, id):
         subscription = Subscribe.objects.filter(
             user=request.user, author=id)
         if subscription.exists():
@@ -65,15 +66,15 @@ class NewUserViewSet(UserViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        queryset = Subscribe.objects.filter(
-            user=request.user)
-        paginator = CustomPagination()
-        paginated_queryset = paginator.paginate_queryset(queryset,
-                                                         request)
-        serializer = self.get_serializer(paginated_queryset,
-                                         context={'request': request},
-                                         many=True)
-        return paginator.get_paginated_response(serializer.data)
+        subscriptions = User.objects.filter(
+            author__user=request.user
+        )
+        paginator = self.paginate_queryset(subscriptions)
+        serializer = SubscribeSerializer(paginator,
+                                         many=True,
+                                         context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
