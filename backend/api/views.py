@@ -35,25 +35,21 @@ class NewUserViewSet(UserViewSet):
         return get_object_or_404(User, id=id)
 
     @action(detail=True,
-            methods=['post'],
+            methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
-        serializer = SubscribeCreateSerializer(
-            data={
-                'user': request.user.id,
-                'author': id
-            },
-            context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'POST':
+            serializer = SubscribeCreateSerializer(
+                data={
+                    'user': request.user.id,
+                    'author': id
+                },
+                context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True,
-            methods=['delete'],
-            permission_classes=[IsAuthenticated])
-    def unsubscribe(self, request, id):
-        subscription = Subscribe.objects.filter(
-            user=request.user, author=id)
+        subscription = Subscribe.objects.filter(user=request.user, author=id)
         if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
