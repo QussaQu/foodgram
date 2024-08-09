@@ -57,16 +57,19 @@ class NewUserViewSet(UserViewSet):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @action(
-        detail=False,
-        permission_classes=[IsAuthenticated]
-    )
+    @action(detail=False,
+            methods=['get'],
+            permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        queryset = Subscribe.objects.filter(user=request.user)
-        paginated_queryset = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(paginated_queryset,
-                                         many=True,
-                                         context={'request': request})
+        subscriptions = User.objects.filter(
+            author__user=request.user
+        )
+        paginator = self.paginate_queryset(subscriptions)
+        serializer = SubscribeSerializer(
+            paginator,
+            many=True,
+            context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
