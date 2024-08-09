@@ -36,30 +36,30 @@ class NewUserViewSet(UserViewSet):
     @action(detail=True,
             methods=['post'],
             permission_classes=[IsAuthenticated])
-    def subscribe(self, request, id):
-        user = self.get_user(id)
+    def subscribe(self, request, id=None):
         serializer = SubscribeCreateSerializer(
-            data={'author': user.id},
-            context={'request': request})
+            data={
+                'user': request.user.id,
+                'author': id
+            },
+            context={"request": request})
         serializer.is_valid(raise_exception=True)
-        subscription = serializer.save(user=request.user)
-        return Response(SubscribeSerializer(
-            subscription,
-            context={'request': request}).data,
-            status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True,
             methods=['delete'],
             permission_classes=[IsAuthenticated])
-    def unsubscribe(self, request, id):
-        user = self.get_user(id)
-        serializer = SubscribeCreateSerializer(
-            data={'author': user.id}, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        subscription = Subscribe.objects.get(
-            user=request.user, author=user)
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def unsubscribe(self, request, id=None):
+        subscription = Subscribe.objects.filter(
+            user=request.user, author=id)
+        if subscription.exists():
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"error": 'Вы не подписаны на пользователя'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @action(detail=False,
             methods=['get'],
