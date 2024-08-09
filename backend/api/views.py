@@ -186,7 +186,7 @@ class RecipeViewSet(ModelViewSet):
             ingredient = Ingredient.objects.get(pk=item['ingredient'])
             amount = item['amount']
             purchased.append(f'{ingredient.name}: {amount}, '
-                             f'{ingredient.unit_of_measurement}')
+                             f'{ingredient.measurement_unit}')
         purchased_in_file = '\n'.join(purchased)
         response = HttpResponse(purchased_in_file, content_type='text/plain')
         response['Content-Disposition'] = (
