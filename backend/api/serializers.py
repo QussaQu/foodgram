@@ -75,8 +75,8 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
         fields = ('user', 'author')
 
     def validate(self, data):
-        user_id = data.get("user").id
-        author_id = data.get("author").id
+        user_id = data.get('user').id
+        author_id = data.get('author').id
         if Subscribe.objects.filter(
                 author=author_id, user=user_id).exists():
             raise serializers.ValidationError(

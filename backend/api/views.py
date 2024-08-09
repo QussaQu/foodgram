@@ -61,8 +61,8 @@ class NewUserViewSet(UserViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(
-            author__user=request.user
+        subscriptions = Subscribe.objects.filter(
+            user=request.user
         )
         paginator = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(
