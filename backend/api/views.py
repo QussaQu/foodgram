@@ -22,7 +22,7 @@ from api.serializers import (NewUserSerializer, SubscribeSerializer,
                              )
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
                             Recipe, ShoppingCart, Tag)
-from users.models import Subscribe
+from users.models import Subscribe, User
 
 
 class NewUserViewSet(UserViewSet):
@@ -39,7 +39,7 @@ class NewUserViewSet(UserViewSet):
                     'user': request.user.id,
                     'author': id
                 },
-                context={"request": request})
+                context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -57,7 +57,7 @@ class NewUserViewSet(UserViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        queryset = Subscribe.objects.filter(subscribing__user=request.user)
+        queryset = User.objects.filter(subscribing__user=request.user)
         page = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(page, many=True,
                                          context={'request': request})
