@@ -74,8 +74,7 @@ class SubscribeSerializer(NewUserSerializer):
             if limit and limit.isdigit():
                 queryset = queryset[:int(limit)]
             return RecipeShortSerializer(queryset,
-                                         many=True,
-                                         context=self.context).data
+                                         many=True,).data
         except ValueError:
             print('Невозможно преобразовать строку в число.')
 
