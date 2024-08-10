@@ -30,6 +30,31 @@ class NewUserViewSet(UserViewSet):
     serializer_class = NewUserSerializer
     pagination_class = CustomPagination
 
+    @action(methods=['get'], detail=False,
+            permission_classes=[IsAuthenticated])
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
+
+    @action(methods=['put', 'delete'],
+            detail=False,
+            permission_classes=[IsAuthenticated])
+    def avatar(self, request):
+        if request.method == 'PUT':
+            serializer = self.avatar_manipulation(request.data)
+            return Response(serializer.data)
+        data = request.data
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        self.avatar_manipulation(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def avatar_manipulation(self, data):
+        instance = self.get_instance()
+        serializer = AvatarSerializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
+
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -63,33 +88,6 @@ class NewUserViewSet(UserViewSet):
         serializer = SubscribeSerializer(page, many=True,
                                          context={'request': request})
         return self.get_paginated_response(serializer.data)
-
-    @action(methods=['get'], detail=False,
-            permission_classes=[IsAuthenticated],
-            url_name='me',)
-    def me(self, request, *args, **kwargs):
-        return super().me(request, *args, **kwargs)
-
-    @action(methods=['put', 'delete'],
-            detail=False,
-            permission_classes=[IsAuthenticated],
-            url_path='me/avatar', url_name='me-avatar',)
-    def avatar(self, request):
-        data = request.data
-        if request.method == 'PUT':
-            serializer = self.avatar_manipulation(request.data)
-            return Response(serializer.data)
-        if 'avatar' not in data:
-            data = {'avatar': None}
-        self.avatar_manipulation(data)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def avatar_manipulation(self, data):
-        instance = self.get_instance()
-        serializer = AvatarSerializer(instance, data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return serializer
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):

@@ -93,12 +93,15 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscribe
-        fields = ('user', 'author')
+        fields = (
+            'user',
+            'author'
+        )
         validators = [
             UniqueTogetherValidator(
                 queryset=model.objects.all(),
                 fields=('user', 'author'),
-                message='Вы уже подписаны на этого пользователя',
+                message='Вы уже подписаны на этого пользователя.',
             )
         ]
 
@@ -136,7 +139,12 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientInRecipe
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount'
+        )
 
 
 class RecipeReadSerializer(ModelSerializer):
