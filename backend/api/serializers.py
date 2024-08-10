@@ -74,22 +74,13 @@ class SubscribeSerializer(NewUserSerializer):
             if limit and limit.isdigit():
                 queryset = queryset[:int(limit)]
             return RecipeShortSerializer(queryset,
-                                         many=True,).data
+                                         many=True,
+                                         context=self.context).data
         except ValueError:
             print('Невозможно преобразовать строку в число.')
 
 
 class SubscribeCreateSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='email',
-        default=serializers.CurrentUserDefault(),
-    )
-    author = serializers.SlugRelatedField(
-        slug_field='email',
-        queryset=User.objects.all(),
-    )
-
     class Meta:
         model = Subscribe
         fields = (
@@ -99,22 +90,18 @@ class SubscribeCreateSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=model.objects.all(),
-                fields=('user', 'author'),
-                message='Вы уже подписаны на этого пользователя.',
+                fields=('author', 'user'),
+                message='Вы уже подписаны на этого пользователя',
             )
         ]
 
     def validate(self, author):
         if self.context['request'].user == author:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя'
-            )
+            raise serializers.ValidationError('Нельзя подписаться на себя')
         return author
 
     def to_representation(self, instance):
-        return SubscribeSerializer(
-            instance.author, context=self.context
-        ).data
+        return SubscribeSerializer(instance.author, context=self.context).data
 
 
 class IngredientSerializer(ModelSerializer):
