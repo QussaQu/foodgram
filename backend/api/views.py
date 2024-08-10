@@ -31,13 +31,15 @@ class NewUserViewSet(UserViewSet):
     pagination_class = CustomPagination
 
     @action(methods=['get'], detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticated],
+            url_name='me')
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
 
     @action(methods=['put', 'delete'],
             detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticated],
+            url_path='me/avatar', url_name='me-avatar',)
     def avatar(self, request):
         if request.method == 'PUT':
             serializer = self.avatar_manipulation(request.data)
