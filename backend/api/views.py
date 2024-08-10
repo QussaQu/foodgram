@@ -91,6 +91,7 @@ class NewUserViewSet(UserViewSet):
         serializer.save()
         return serializer
 
+
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
