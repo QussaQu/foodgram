@@ -19,7 +19,7 @@ class User(AbstractUser):
         unique=True,
     )
     avatar = models.ImageField(
-        'Фотография профиля'
+        'Фотография профиля',
         null=True,
         blank=True,
         upload_to='avatar/')
