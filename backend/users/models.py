@@ -18,6 +18,11 @@ class User(AbstractUser):
         max_length=MAX_CHAR_LENGTH,
         unique=True,
     )
+    avatar = models.ImageField(
+        'Фотография профиля'
+        null=True,
+        blank=True,
+        upload_to='avatar/')
 
     class Meta:
         ordering = ['id']

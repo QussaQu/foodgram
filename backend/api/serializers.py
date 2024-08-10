@@ -5,6 +5,7 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.serializers import ModelSerializer, BooleanField
 
 from recipes.models import (
@@ -37,12 +38,21 @@ class NewUserSerializer(UserSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
+            'avatar'
         )
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         return (user.is_authenticated
                 and user.subscriber.filter(id=obj.id).exists())
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    avatar = Base64ImageField(allow_null=True)
+
+    class Meta:
+        model = User
+        fields = ('avatar',)
 
 
 class SubscribeSerializer(NewUserSerializer):
@@ -71,25 +81,33 @@ class SubscribeSerializer(NewUserSerializer):
 
 
 class SubscribeCreateSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='email',
+        default=serializers.CurrentUserDefault(),
+    )
+    author = serializers.SlugRelatedField(
+        slug_field='email',
+        queryset=User.objects.all(),
+    )
+
     class Meta:
         model = Subscribe
         fields = ('user', 'author')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=model.objects.all(),
+                fields=('user', 'author'),
+                message='Вы уже подписаны на этого пользователя',
+            )
+        ]
 
-    def validate(self, data):
-        user_id = data.get('user').id
-        author_id = data.get('author').id
-        if Subscribe.objects.filter(
-                author=author_id, user=user_id).exists():
+    def validate(self, author):
+        if self.context['request'].user == author:
             raise serializers.ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST,
+                'Нельзя подписаться на самого себя'
             )
-        if user_id == author_id:
-            raise serializers.ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        return data
+        return author
 
     def to_representation(self, instance):
         return SubscribeSerializer(

@@ -1,6 +1,7 @@
 from django.db.models import (Sum, BooleanField, Case,
                               When, Value, OuterRef, Exists)
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -63,6 +64,32 @@ class NewUserViewSet(UserViewSet):
                                          context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+    @action(methods=['get'], detail=False,
+            permission_classes=[IsAuthenticated],
+            url_name='me',)
+    def me(self, request, *args, **kwargs):
+        return super().me(request, *args, **kwargs)
+
+    @action(methods=['post', 'delete'],
+            detail=False,
+            permission_classes=[IsAuthenticated],
+            url_path='me/avatar', url_name='me-avatar',)
+    def avatar(self, request):
+        data = request.data
+        if request.method == 'POST':
+            serializer = self.avatar_manipulation(request.data)
+            return Response(serializer.data)
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        self.avatar_manipulation(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def avatar_manipulation(self, data):
+        instance = self.get_instance()
+        serializer = AvatarSerializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
