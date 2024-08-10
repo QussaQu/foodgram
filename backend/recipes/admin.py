@@ -8,13 +8,13 @@ from .models import (Favorite, Ingredient,
 
 class IngredientInRecipeInline(admin.StackedInline):
     model = IngredientInRecipe
-    extra = 0
+    extra = 1
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInRecipeInline]
-    list_display = ('name', 'id', 'author', 'added_in_favorites')
+    list_display = ('name', 'id', 'author')
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
 
