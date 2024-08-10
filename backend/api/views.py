@@ -1,7 +1,6 @@
 from django.db.models import (Sum, BooleanField, Case,
                               When, Value, OuterRef, Exists)
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -19,7 +18,8 @@ from api.serializers import (NewUserSerializer, SubscribeSerializer,
                              IngredientSerializer, RecipeReadSerializer,
                              RecipeWriteSerializer, TagSerializer,
                              ShoppingCartCreateSerializer,
-                             FavoriteCreateSerializer
+                             FavoriteCreateSerializer,
+                             AvatarSerializer
                              )
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
                             Recipe, ShoppingCart, Tag)
