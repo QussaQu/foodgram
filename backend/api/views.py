@@ -70,13 +70,13 @@ class NewUserViewSet(UserViewSet):
     def me(self, request, *args, **kwargs):
         return super().me(request, *args, **kwargs)
 
-    @action(methods=['post', 'delete'],
+    @action(methods=['put', 'delete'],
             detail=False,
             permission_classes=[IsAuthenticated],
             url_path='me/avatar', url_name='me-avatar',)
     def avatar(self, request):
         data = request.data
-        if request.method == 'POST':
+        if request.method == 'PUT':
             serializer = self.avatar_manipulation(request.data)
             return Response(serializer.data)
         if 'avatar' not in data:
