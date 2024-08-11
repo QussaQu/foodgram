@@ -207,22 +207,38 @@ class RecipeWriteSerializer(ModelSerializer):
         )
 
     def validate_ingredients(self, value):
-        if not value:
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
-        ingredients = [item['id'] for item in value]
-        unique_ingredients = set(ingredients)
-        if len(ingredients) != len(unique_ingredients):
-            raise serializers.ValidationError(
-                'Ингредиенты не должны повторяться'
+        ingregients = value
+        if not ingregients:
+            raise ValidationError(
+                {'ingredients': 'Нужен хотя бы один ингредиент'}
             )
+        ingredients_list = []
+        for ingredient in ingregients:
+            if ingredient in ingredients_list:
+                raise ValidationError(
+                    {'ingredients': 'Ингредиенты должны быть уникальными'}
+                )
+            ingredients_list.append(ingredient)
         return value
+
+        # if not value:
+        #     raise ValidationError({
+        #         'ingredients': 'Нужен хотя бы один ингредиент!'
+        #     })
+        # ingredients = [item['id'] for item in value]
+        # unique_ingredients = set(ingredients)
+        # if len(ingredients) != len(unique_ingredients):
+        #     raise serializers.ValidationError(
+        #         'Ингредиенты не должны повторяться'
+        #     )
+        # return value
 
     def validate_tags(self, value):
         tags = value
         if not tags:
-            raise ValidationError({'tags': 'Нужно выбрать хотя бы один тег!'})
+            raise ValidationError(
+                {'tags': 'Нужно выбрать хотя бы один тег'}
+            )
         tags_list = []
         for tag in tags:
             if tag in tags_list:
