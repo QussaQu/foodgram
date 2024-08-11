@@ -190,7 +190,7 @@ class RecipeWriteSerializer(ModelSerializer):
     )
     author = NewUserSerializer(read_only=True)
     ingredients = IngredientInRecipeWriteSerializer(
-        many=True, write_only=True
+        many=True, write_only=True, source='ingredient_list')
     )
     image = Base64ImageField()
 
