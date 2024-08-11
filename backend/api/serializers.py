@@ -207,20 +207,18 @@ class RecipeWriteSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def validate_ingredients(self, attrs):
-        ingredients = attrs.get('ingredient_list', [])
-        if len(ingredients) == 0:
+    def validate_ingredients(self, value):
+        if not value:
             raise ValidationError({
                 'ingredients': 'Нужен хотя бы один ингредиент!'
             })
-        id_ingredients = {
-            ingredient['ingredient'] for ingredient in ingredients
-        }
-        if len(ingredients) != len(id_ingredients):
+        ingredients = [item['id'] for item in value]
+        unique_ingredients = set(ingredients)
+        if len(ingredients) != len(unique_ingredients):
             raise serializers.ValidationError(
                 'Ингредиенты не должны повторяться'
             )
-        return attrs
+        return value
 
     def validate_tags(self, value):
         tags = value
@@ -246,7 +244,7 @@ class RecipeWriteSerializer(ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('ingredient_list')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.create_ingredients_amounts(recipe, ingredients)
@@ -257,7 +255,7 @@ class RecipeWriteSerializer(ModelSerializer):
         instance.tags.clear()
         instance.tags.set(validated_data.pop('tags'))
         instance.ingredients.clear()
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('ingredient_list')
         self.create_ingredients_amounts(instance, ingredients)
         return super().update(instance, validated_data)
 
