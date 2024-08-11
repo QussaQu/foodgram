@@ -207,7 +207,7 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def validate(self, data):
         ingredients = data.get('ingredients')
-        if not ingredients and len(ingredients) == 0:
+        if not ingredients:
             raise serializers.ValidationError(
                 {'ingredients': 'Нужен хотя бы один ингредиент'}
             )
