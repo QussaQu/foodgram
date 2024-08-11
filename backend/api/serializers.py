@@ -255,15 +255,16 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        instance.tags.clear()
-        instance.tags.set(validated_data.pop('tags'))
-        instance.ingredients.clear()
         ingredients = validated_data.pop('ingredient_list')
+        instance.tags.set(validated_data.pop('tags'))
+        instance.tags.clear()
+        instance.ingredients.clear()
         self.create_ingredients_amounts(instance, ingredients)
-        return super().update(instance, validated_data)
+        super().update(instance, validated_data)
+        return instance
 
-    def to_representation(self, recipe):
-        return RecipeReadSerializer(recipe, context=self.context).data
+    def to_representation(self, instance):
+        return RecipeReadSerializer(instance, context=self.context).data
 
 
 class RecipeShortSerializer(ModelSerializer):
