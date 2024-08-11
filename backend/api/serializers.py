@@ -190,7 +190,7 @@ class RecipeWriteSerializer(ModelSerializer):
     )
     author = NewUserSerializer(read_only=True)
     ingredients = IngredientInRecipeWriteSerializer(
-        many=True, write_only=True, source='ingredient_list')
+        many=True, write_only=True)
     image = Base64ImageField()
 
     class Meta:
@@ -247,7 +247,7 @@ class RecipeWriteSerializer(ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredient_list')
+        ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.create_ingredients_amounts(recipe, ingredients)
@@ -255,16 +255,15 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredient_list')
-        instance.tags.set(validated_data.pop('tags'))
         instance.tags.clear()
+        instance.tags.set(validated_data.pop('tags'))
         instance.ingredients.clear()
+        ingredients = validated_data.pop('ingredients')
         self.create_ingredients_amounts(instance, ingredients)
-        super().update(instance, validated_data)
-        return instance
+        return super().update(instance, validated_data)
 
-    def to_representation(self, instance):
-        return RecipeReadSerializer(instance, context=self.context).data
+    def to_representation(self, recipe):
+        return RecipeReadSerializer(recipe, context=self.context).data
 
 
 class RecipeShortSerializer(ModelSerializer):
