@@ -206,32 +206,17 @@ class RecipeWriteSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def validate_ingredients(self, value):
-        ingregients = value
-        if not ingregients:
+    def validate_ingredients(self, data):
+        ingredients = data.get("ingredients")
+        if not ingredients:
             raise ValidationError(
                 {'ingredients': 'Нужен хотя бы один ингредиент'}
             )
-        ingredients_list = []
-        for ingredient in ingregients:
-            if ingredient in ingredients_list:
-                raise ValidationError(
-                    {'ingredients': 'Ингредиенты должны быть уникальными'}
-                )
-            ingredients_list.append(ingredient)
-        return value
-
-        # if not value:
-        #     raise ValidationError({
-        #         'ingredients': 'Нужен хотя бы один ингредиент!'
-        #     })
-        # ingredients = [item['id'] for item in value]
-        # unique_ingredients = set(ingredients)
-        # if len(ingredients) != len(unique_ingredients):
-        #     raise serializers.ValidationError(
-        #         'Ингредиенты не должны повторяться'
-        #     )
-        # return value
+        if (len(set(item["id"] for item in ingredients)) != len(ingredients)):
+            raise ValidationError(
+                {'ingredients': 'Ингредиенты должны быть уникальными'}
+            )
+        return data
 
     def validate_tags(self, value):
         tags = value
