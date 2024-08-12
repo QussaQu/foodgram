@@ -67,6 +67,7 @@ scp docker-compose.yml nginx.conf username@IP:/home/username/   # username - и�
 2. После скачивания проекта перейтите в дерикторию foodgram, затем в infra (cd foodgram/infra);
 3. Создайте в данной дериктории файл .env (sudo touch .env). Откройте созданный файл .env (sudo nano .env);
 4. В открывшимся окне пропишите "секреты" для backend.settings:
+
 ```
 SECRET_KEY='django-insecure-******'
 DEBUG=True / False
