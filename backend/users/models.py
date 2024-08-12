@@ -54,18 +54,13 @@ class Subscribe(models.Model):
                 fields=['user', 'author'],
                 name="\n%(app_label)s_%(class)s\n",
             ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('author')),
-                name='unique_subscriber_himself',
-            ),
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         if self.user == self.author:
             raise ValidationError('На себя подписаться невозможно.')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.user} подписался на {self.author}'
