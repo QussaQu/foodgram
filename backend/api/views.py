@@ -58,20 +58,21 @@ class NewUserViewSet(UserViewSet):
         return serializer
 
     @action(detail=True,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated])
+            methods=['post'],
+            permission_classes=[IsAuthenticated],)
     def subscribe(self, request, id):
-        if request.method == 'POST':
-            serializer = SubscribeCreateSerializer(
-                data={
-                    'user': request.user.id,
-                    'author': id
-                },
-                context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = SubscribeCreateSerializer(
+            data={
+                'user': request.user.id,
+                'author': id
+            },
+            context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @subscribe.mapping.delete
+    def unsubscribe(self, request, id):
         subscription = Subscribe.objects.filter(user=request.user, author=id)
         if subscription.exists():
             subscription.delete()
@@ -83,7 +84,9 @@ class NewUserViewSet(UserViewSet):
 
     @action(detail=False,
             methods=['get'],
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticated],
+            url_path='subscriptions',
+            url_name='subscriptions',)
     def subscriptions(self, request):
         queryset = User.objects.filter(subscribing__user=request.user)
         page = self.paginate_queryset(queryset)
