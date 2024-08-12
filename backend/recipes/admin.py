@@ -16,12 +16,13 @@ class IngredientInRecipeInline(admin.StackedInline):
 
 class RecipesAdminForm(forms.ModelForm):
     def quantity_limit(self):
-        Ingredients = self.cleaned_data['ingredient']
-        if len(Ingredients) == 0:
+        ingredients = self.cleaned_data['ingredient']
+        if len(ingredients) == 0:
             raise forms.ValidationError(
                 'Нельзя создать/сохранить рецепт без ингредиента'
             )
-        return Ingredients
+        return ingredients
+
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
