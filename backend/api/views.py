@@ -197,7 +197,7 @@ class RecipeViewSet(ModelViewSet):
             .values('ingredient')
             .annotate(amount=Sum('amount'))
         )
-        purchased = ["Список покупок:", ]
+        purchased = ['Список покупок:', ]
         for item in ingredients:
             ingredient = Ingredient.objects.get(pk=item['ingredient'])
             amount = item['amount']

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import display
 
+from recipes.constants import MIN_VALUE
 from .models import (Favorite, Ingredient,
                      IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
@@ -9,6 +10,7 @@ from .models import (Favorite, Ingredient,
 class IngredientInRecipeInline(admin.StackedInline):
     model = IngredientInRecipe
     extra = 1
+    min_num = MIN_VALUE
 
 
 @admin.register(Recipe)
