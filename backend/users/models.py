@@ -53,7 +53,11 @@ class Subscribe(models.Model):
             UniqueConstraint(
                 fields=['user', 'author'],
                 name="\n%(app_label)s_%(class)s\n",
-            )
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('author')),
+                name='unique_subscriber_himself',
+            ),
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
