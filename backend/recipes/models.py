@@ -23,7 +23,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
-                name='unique_together'
+                name='unique_ingredient_unit'
             )
         ]
 
@@ -126,6 +126,12 @@ class IngredientInRecipe(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('ingredient', 'recipe'),
+                name='unique_recipe_ingredient'
+            )
+        ]
 
     def __str__(self):
         return (

@@ -8,26 +8,30 @@ from .models import (Favorite, Ingredient,
                      ShoppingCart, Tag)
 
 
+class IngredientsInRecipeInlineFormset(forms.models.BaseInlineFormSet):
+    def clean(self):
+        count = 0
+        for form in self.forms:
+            try:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE',
+                                                                   False):
+                    count += 1
+            except AttributeError:
+                pass
+        if count < 1:
+            raise forms.ValidationError('Выберите хотя бы один ингредиент')
+
+
 class IngredientInRecipeInline(admin.StackedInline):
     model = IngredientInRecipe
+    formset = IngredientsInRecipeInlineFormset
     extra = 1
     min_num = MIN_VALUE
-
-
-class RecipesAdminForm(forms.ModelForm):
-    def quantity_limit(self):
-        ingredients = self.cleaned_data['ingredient']
-        if len(ingredients) == 0:
-            raise forms.ValidationError(
-                'Нельзя создать/сохранить рецепт без ингредиента'
-            )
-        return ingredients
-
+    validate_min = True
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInRecipeInline]
-    form = RecipesAdminForm
     list_display = ('name', 'id', 'author')
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
