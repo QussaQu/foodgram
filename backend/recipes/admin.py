@@ -29,6 +29,7 @@ class IngredientInRecipeInline(admin.StackedInline):
     min_num = MIN_VALUE
     validate_min = True
 
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInRecipeInline]
