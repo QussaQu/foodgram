@@ -17,6 +17,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'id', 'author')
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
+    empty_value_display = '-пусто-'
 
     @display(description='Количество в избранных')
     def added_in_favorites(self, obj):
@@ -27,18 +28,22 @@ class RecipeAdmin(admin.ModelAdmin):
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
+    empty_value_display = '-пусто-'
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug',)
+    empty_value_display = '-пусто-'
 
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
+    empty_value_display = '-пусто-'
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
+    empty_value_display = '-пусто-'
