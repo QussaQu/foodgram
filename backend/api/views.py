@@ -77,7 +77,7 @@ class NewUserViewSet(UserViewSet):
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {"error": 'Вы не подписаны на пользователя'},
+            {'error': 'Вы не подписаны на пользователя'},
             status=status.HTTP_400_BAD_REQUEST,
         )
 

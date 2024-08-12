@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.admin import display
 
@@ -13,9 +14,19 @@ class IngredientInRecipeInline(admin.StackedInline):
     min_num = MIN_VALUE
 
 
+class RecipesAdminForm(forms.ModelForm):
+    def quantity_limit(self):
+        Ingredients = self.cleaned_data['ingredient']
+        if len(Ingredients) == 0:
+            raise forms.ValidationError(
+                'Невозможно создать рецепт без ингредиента'
+            )
+        return Ingredients
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientInRecipeInline]
+    form = RecipesAdminForm
     list_display = ('name', 'id', 'author')
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
