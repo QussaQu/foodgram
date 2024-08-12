@@ -19,7 +19,7 @@ class RecipesAdminForm(forms.ModelForm):
         Ingredients = self.cleaned_data['ingredient']
         if len(Ingredients) == 0:
             raise forms.ValidationError(
-                'Невозможно создать рецепт без ингредиента'
+                'Нельзя создать/сохранить рецепт без ингредиента'
             )
         return Ingredients
 
